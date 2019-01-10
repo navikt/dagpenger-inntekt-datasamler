@@ -20,6 +20,8 @@ apply {
 
 repositories {
     jcenter()
+    maven("http://packages.confluent.io/maven/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 java {
@@ -28,24 +30,24 @@ java {
 }
 
 val kafkaVersion = "2.0.1"
+val kotlinLoggingVersion = "1.4.9"
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("no.nav.dagpenger:streams:0.2.2-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
+    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
+    compile("org.apache.kafka:kafka-streams:$kafkaVersion")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
 }
 
 application {
-    applicationName = "dagpenger-inntekt-datasamler"
-    mainClassName = "no.nav.dagpenger.inntekt.InntektDatasamler"
+    applicationName = "dp-datalaster-inntekt"
+    mainClassName = "no.nav.dagpenger.inntekt.Datalaster"
 }
-
-
 
 spotless {
     kotlin {
