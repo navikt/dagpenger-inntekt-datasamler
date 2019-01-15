@@ -17,3 +17,5 @@ fasitResources:
   used:
   - alias:  kafka-schema-registry
     resourceType: baseUrl
+  - alias: dp-datalaster-inntekt-properties
+    resourceType: applicationproperties
