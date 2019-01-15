@@ -1,0 +1,19 @@
+name: dp-datalaster-inntekt
+image: repo.adeo.no:5443/dp-datalaster-inntekt
+team: teamdagpenger
+replicas:
+  min: 2
+  max: 4
+resources:
+  limits:
+    cpu: 1000m
+    memory: 384Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+prometheus:
+  enabled: true
+fasitResources:
+  used:
+  - alias:  kafka-schema-registry
+    resourceType: baseUrl
