@@ -1,6 +1,8 @@
 package no.nav.dagpenger.inntekt
 
 data class Environment(
+    val username: String = getEnvVar("USERNAME"),
+    val password: String = getEnvVar("PASSWORD"),
     val bootstrapServersUrl: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
     val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_URL", "http://localhost:8081"),
     val fasitEnvironmentName: String = getEnvVar(
