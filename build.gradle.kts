@@ -31,15 +31,15 @@ java {
 }
 
 val kafkaVersion = "2.0.1"
-val kotlinLoggingVersion = "1.4.9"
+val kotlinLoggingVersion = "1.6.22"
 val log4j2Version = "2.11.1"
 val jupiterVersion = "5.3.2"
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("no.nav.dagpenger:streams:0.2.2-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.1.9-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.2.3-SNAPSHOT")
+    implementation("no.nav.dagpenger:events:0.2.0-SNAPSHOT")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
@@ -50,6 +50,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("no.nav:kafka-embedded-env:2.0.1")
 }
 
 application {
