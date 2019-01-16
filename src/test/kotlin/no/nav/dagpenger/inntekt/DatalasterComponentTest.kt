@@ -1,6 +1,7 @@
 package no.nav.dagpenger.inntekt
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import mu.KotlinLogging
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.common.embeddedutils.getAvailablePort
@@ -9,15 +10,22 @@ import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.config.SaslConfigs
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.Properties
+import java.util.Random
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class DatalasterComponentTest {
+
+    private val LOGGER = KotlinLogging.logger {}
 
     companion object {
         private const val username = "srvkafkaclient"
@@ -62,11 +70,48 @@ class DatalasterComponentTest {
     }
 
     @Test
-    fun hei() {
-        assertNotNull("hei", "hei")
+    fun ` Should be able to consume vilkår events and add inntekt `() {
+
+        val producer = vikårProducer(env)
+
+        val record = producer.send(ProducerRecord(Topics.VILKÅR_EVENT.name, Vilkår.newBuilder().apply {
+            aktorId = Random().nextInt().toString()
+            id = UUID.randomUUID().toString()
+            vedtaksId = Random().nextInt().toString()
+        }.build())).get()
+        LOGGER.info { "Produced -> ${record.topic()}  to offset ${record.offset()}" }
+
+        val consumer = vilkårConsumer(env)
+
+        val vilkår = consumer.poll(Duration.ofSeconds(5)).toList()
+
+        assertEquals(vilkår.size, 2)
     }
 
-    private fun behovConsumer(env: Environment): KafkaConsumer<String, Vilkår> {
+    private fun vikårProducer(env: Environment): KafkaProducer<String, Vilkår> {
+
+        return KafkaProducer(Properties().apply {
+            put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
+            put(ProducerConfig.CLIENT_ID_CONFIG, "vilkår-test-producer")
+            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServersUrl)
+            put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                Topics.VILKÅR_EVENT.keySerde.serializer().javaClass.name
+            )
+            put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                Topics.VILKÅR_EVENT.valueSerde.serializer().javaClass.name
+            )
+            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
+            put(SaslConfigs.SASL_MECHANISM, "PLAIN")
+            put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true)
+            put(
+                SaslConfigs.SASL_JAAS_CONFIG,
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${env.username}\" password=\"${env.password}\";"
+            )
+        })
+    }
+    private fun vilkårConsumer(env: Environment): KafkaConsumer<String, Vilkår> {
         val consumer: KafkaConsumer<String, Vilkår> = KafkaConsumer(Properties().apply {
             put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
             put(ConsumerConfig.GROUP_ID_CONFIG, "dummy-dagpenger-innkomne-jp")
