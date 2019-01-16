@@ -38,7 +38,7 @@ val jupiterVersion = "5.3.2"
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("no.nav.dagpenger:streams:0.2.3-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.2.4-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.2.0-SNAPSHOT")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
