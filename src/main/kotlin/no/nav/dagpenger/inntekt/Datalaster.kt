@@ -32,6 +32,7 @@ class Datalaster(val env: Environment) : Service() {
         val vilkårTopology = builder.consumeTopic(Topics.VILKÅR_EVENT, env.schemaRegistryUrl)
         vilkårTopology
             .filter { _, vilkår -> vilkår.getInntekter() == null }
+            .peek { _, vilkår ->     LOGGER.info { "Handling vilkår with id ${vilkår.getId()}" }}
             .mapValues { _, vilkår ->
                 // fetch "inntekt" object from dp-inntekt-api
                 // add "inntekt" to vilkår
