@@ -23,6 +23,7 @@ private val LOGGER = KotlinLogging.logger {}
 
 class Datalaster(val env: Environment) : Service() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
+    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
