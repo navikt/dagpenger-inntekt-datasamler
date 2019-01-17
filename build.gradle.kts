@@ -40,8 +40,8 @@ val prometheusVersion = "0.6.0"
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    compile("no.nav.dagpenger:streams:0.2.5-SNAPSHOT")
-    compile("no.nav.dagpenger:events:0.2.0-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.2.5-SNAPSHOT")
+    implementation("no.nav.dagpenger:events:0.2.0-SNAPSHOT")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
     compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")

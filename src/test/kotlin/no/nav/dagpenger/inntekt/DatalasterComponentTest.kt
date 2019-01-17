@@ -36,7 +36,7 @@ class DatalasterComponentTest {
             autoStart = false,
             withSchemaRegistry = true,
             withSecurity = true,
-            topics = listOf("privat-dagpenger-vilkår-alpha")
+            topics = listOf(Topics.VILKÅR_EVENT.name)
         )
 
         val env = Environment(
@@ -85,7 +85,7 @@ class DatalasterComponentTest {
 
         val vilkår = consumer.poll(Duration.ofSeconds(5)).toList()
 
-        assertEquals(vilkår.size, 2)
+        assertEquals(vilkår.size, 1)
     }
 
     private fun vikårProducer(env: Environment): KafkaProducer<String, Vilkår> {
