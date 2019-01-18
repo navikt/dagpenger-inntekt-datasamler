@@ -36,6 +36,7 @@ val log4j2Version = "2.11.1"
 val jupiterVersion = "5.3.2"
 val confluentVersion = "5.0.0"
 val prometheusVersion = "0.6.0"
+val orgJsonVersion = "20180813"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -51,6 +52,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     implementation("com.vlkan.log4j2:log4j2-logstash-layout-fatjar:0.15")
+    implementation("org.json:json:$orgJsonVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
