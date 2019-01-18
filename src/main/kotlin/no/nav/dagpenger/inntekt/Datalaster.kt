@@ -42,16 +42,15 @@ class Datalaster(val env: Environment) : Service() {
         } ?: Topics.VILKÅR_EVENT
 
         val vilkårTopology = builder.consumeTopic(topic, env.schemaRegistryUrl)
-        vilkårTopology
-                .filter { _, vilkår -> vilkår.getInntekter() == null }
-                .peek { _, vilkår -> LOGGER.info { "Handling vilkår with id ${vilkår.getId()}" } }
-                .mapValues { _, vilkår ->
-                    // fetch "inntekt" object from dp-inntekt-api
-                    // add "inntekt" to vilkår
-                    val inntektsdata = fetchInntektData(vilkår.getAktorId())
-                    vilkår.setInntekter(inntektsdata)
-                    vilkår
-                }.toTopic(topic, env.schemaRegistryUrl)
+            .filter { _, vilkår -> vilkår.getInntekter() == null }
+            .peek { _, vilkår -> LOGGER.info { "Handling vilkår with id ${vilkår.getId()}" } }
+            .mapValues { _, vilkår ->
+                // fetch "inntekt" object from dp-inntekt-api
+                // add "inntekt" to vilkår
+                val inntektsdata = fetchInntektData(vilkår.getAktorId())
+                val vilkårBuilder = Vilkår.newBuilder(vilkår).setInntekter(inntektsdata)
+                return@mapValues vilkårBuilder.build()
+            }.toTopic(Topics.VILKÅR_EVENT, env.schemaRegistryUrl)
 
         return builder.build()
     }
