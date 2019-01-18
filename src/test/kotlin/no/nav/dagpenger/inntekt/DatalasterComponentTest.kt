@@ -85,7 +85,7 @@ class DatalasterComponentTest {
 
         val vilkår = consumer.poll(Duration.ofSeconds(5)).toList()
 
-        assertEquals(vilkår.size, 1)
+        assertEquals(2, vilkår.size)
     }
 
     private fun vikårProducer(env: Environment): KafkaProducer<String, Vilkår> {

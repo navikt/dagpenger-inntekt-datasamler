@@ -1,10 +1,13 @@
 package no.nav.dagpenger.inntekt
 
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import mu.KotlinLogging
 import no.nav.dagpenger.events.avro.Inntekt
 import no.nav.dagpenger.events.avro.Inntektsdata
 import no.nav.dagpenger.events.avro.Inntektstype
 import no.nav.dagpenger.events.avro.Måned
+import no.nav.dagpenger.events.avro.Vilkår
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topics
@@ -13,6 +16,7 @@ import no.nav.dagpenger.streams.streamConfig
 import no.nav.dagpenger.streams.toTopic
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.Topology
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
@@ -27,21 +31,29 @@ class Datalaster(val env: Environment) : Service() {
 
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
+        return KafkaStreams(buildTopology(), getConfig())
+    }
 
+    internal fun buildTopology(schemaRegistryClient: SchemaRegistryClient? = null): Topology {
         val builder = StreamsBuilder()
-        val vilkårTopology = builder.consumeTopic(Topics.VILKÅR_EVENT, env.schemaRegistryUrl)
-        vilkårTopology
-            .filter { _, vilkår -> vilkår.getInntekter() == null }
-            .peek { _, vilkår -> LOGGER.info { "Handling vilkår with id ${vilkår.getId()}" } }
-            .mapValues { _, vilkår ->
-                // fetch "inntekt" object from dp-inntekt-api
-                // add "inntekt" to vilkår
-                val inntektsdata = fetchInntektData(vilkår.getAktorId())
-                vilkår.setInntekter(inntektsdata)
-                vilkår
-            }.toTopic(Topics.VILKÅR_EVENT, env.schemaRegistryUrl)
 
-        return KafkaStreams(builder.build(), getConfig())
+        val topic = schemaRegistryClient?.let { client ->
+            Topics.VILKÅR_EVENT.copy(valueSerde = SpecificAvroSerde<Vilkår>(client))
+        } ?: Topics.VILKÅR_EVENT
+
+        val vilkårTopology = builder.consumeTopic(topic, env.schemaRegistryUrl)
+        vilkårTopology
+                .filter { _, vilkår -> vilkår.getInntekter() == null }
+                .peek { _, vilkår -> LOGGER.info { "Handling vilkår with id ${vilkår.getId()}" } }
+                .mapValues { _, vilkår ->
+                    // fetch "inntekt" object from dp-inntekt-api
+                    // add "inntekt" to vilkår
+                    val inntektsdata = fetchInntektData(vilkår.getAktorId())
+                    vilkår.setInntekter(inntektsdata)
+                    vilkår
+                }.toTopic(topic, env.schemaRegistryUrl)
+
+        return builder.build()
     }
 
     private fun fetchInntektData(aktorId: String): Inntektsdata {
@@ -50,6 +62,7 @@ class Datalaster(val env: Environment) : Service() {
             verneplikt = false
             fraDato = Instant.now().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
             inntekter = listOf(Inntekt.newBuilder().apply {
+                virksomhet = "12345678"
                 måned = Måned.april
                 År = 2018
                 beløp = BigDecimal(32000.50)
@@ -62,9 +75,9 @@ class Datalaster(val env: Environment) : Service() {
 
     override fun getConfig(): Properties {
         return streamConfig(
-            appId = SERVICE_APP_ID,
-            bootStapServerUrl = env.bootstrapServersUrl,
-            credential = KafkaCredential(env.username, env.password)
+                appId = SERVICE_APP_ID,
+                bootStapServerUrl = env.bootstrapServersUrl,
+                credential = KafkaCredential(env.username, env.password)
         )
     }
 
