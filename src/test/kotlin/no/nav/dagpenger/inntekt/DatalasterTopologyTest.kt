@@ -1,33 +1,22 @@
 package no.nav.dagpenger.inntekt
 
-import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-import no.nav.dagpenger.events.avro.Vilkår
-import no.nav.dagpenger.streams.Topics
-import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
+import org.json.JSONObject
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.Properties
-import java.util.Random
-import java.util.UUID
 import kotlin.test.assertTrue
 
 class DatalasterTopologyTest {
 
     companion object {
-        val mockSchemaRegistryClient = MockSchemaRegistryClient().apply {
-            register(Topics.VILKÅR_EVENT.name, Vilkår.getClassSchema())
-        }
-        val vilkårSerDes = SpecificAvroSerde<Vilkår>(mockSchemaRegistryClient).apply {
-            configure(mapOf(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to "bogus"), false)
-        }
-        val factory = ConsumerRecordFactory<String, Vilkår>(
-                Topics.VILKÅR_EVENT.name,
-                Serdes.String().serializer(),
-                vilkårSerDes.serializer()
+
+        val factory = ConsumerRecordFactory<String, JSONObject>(
+            dagpengerBehovTopic.name,
+            dagpengerBehovTopic.keySerde.serializer(),
+            dagpengerBehovTopic.valueSerde.serializer()
         )
 
         val config = Properties().apply {
@@ -37,23 +26,56 @@ class DatalasterTopologyTest {
     }
 
     @Test
-    fun ` Should add inntekt to vilkår `() {
-        val datalaster = Datalaster(Environment(
+    fun ` Should add inntekt to dagpenger behov `() {
+        val datalaster = Datalaster(
+            Environment(
                 username = "bogus",
                 password = "bogus"
-        ))
+            )
+        )
 
-        val innVilkår = Vilkår.newBuilder().apply {
-            aktorId = Random().nextInt().toString()
-            id = UUID.randomUUID().toString()
-            vedtaksId = Random().nextInt().toString()
-        }.build()
+        val jsonObject = JSONObject()
+        jsonObject.put("tasks", listOf("hentInntekt"))
 
-        TopologyTestDriver(datalaster.buildTopology(mockSchemaRegistryClient), config).use { topologyTestDriver ->
-            val inputRecord = factory.create(innVilkår)
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(jsonObject)
             topologyTestDriver.pipeInput(inputRecord)
-            val ut = topologyTestDriver.readOutput(Topics.VILKÅR_EVENT.name, Serdes.String().deserializer(), vilkårSerDes.deserializer())
-            assertTrue("Inntektsdata should have beed added") { ut.value().getInntekter() != null }
+            val ut = topologyTestDriver.readOutput(
+                dagpengerBehovTopic.name,
+                dagpengerBehovTopic.keySerde.deserializer(),
+                dagpengerBehovTopic.valueSerde.deserializer()
+            )
+
+            assertTrue { ut != null }
+            assertEquals(ut.value().get("inntekt"), 0)
+        }
+    }
+
+    @Test
+    fun ` Should  not manipulate other data than add inntekt to dagpenger behov `() {
+        val datalaster = Datalaster(
+            Environment(
+                username = "bogus",
+                password = "bogus"
+            )
+        )
+
+        val jsonObject = JSONObject()
+        jsonObject.put("tasks", listOf("hentInntekt"))
+        jsonObject.put("otherData", "data")
+
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(jsonObject)
+            topologyTestDriver.pipeInput(inputRecord)
+            val ut = topologyTestDriver.readOutput(
+                dagpengerBehovTopic.name,
+                dagpengerBehovTopic.keySerde.deserializer(),
+                dagpengerBehovTopic.valueSerde.deserializer()
+            )
+
+            assertTrue { ut != null }
+            assertEquals(ut.value().get("inntekt"), 0)
+            assertEquals(ut.value().get("otherData"), "data")
         }
     }
 }
