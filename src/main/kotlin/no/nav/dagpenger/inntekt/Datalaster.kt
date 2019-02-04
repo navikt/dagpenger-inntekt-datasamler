@@ -49,7 +49,6 @@ class Datalaster(val env: Environment) : Service() {
             }
             .to(dagpengerBehovTopic.name, Produced.with(dagpengerBehovTopic.keySerde, dagpengerBehovTopic.valueSerde))
 
-
         return builder.build()
     }
 
