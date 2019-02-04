@@ -30,6 +30,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes["Multi-Release"] = "true" // https://github.com/johnrengelman/shadow/issues/449
+    }
+}
+
 val kafkaVersion = "2.0.1"
 val kotlinLoggingVersion = "1.6.22"
 val log4j2Version = "2.11.1"

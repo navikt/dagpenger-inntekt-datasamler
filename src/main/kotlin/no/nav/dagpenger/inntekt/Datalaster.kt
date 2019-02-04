@@ -11,7 +11,6 @@ import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
-import org.codehaus.jackson.map.ObjectMapper
 import org.json.JSONObject
 import java.util.Properties
 
@@ -20,7 +19,6 @@ private val LOGGER = KotlinLogging.logger {}
 class Datalaster(val env: Environment) : Service() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
-    private val objectMapper = ObjectMapper()
 
     override fun setupStreams(): KafkaStreams {
         LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
