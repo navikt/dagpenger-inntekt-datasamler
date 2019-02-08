@@ -5,6 +5,7 @@ import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.Properties
 import kotlin.test.assertTrue
@@ -47,7 +48,7 @@ class DatalasterTopologyTest {
             )
 
             assertTrue { ut != null }
-            assertEquals(ut.value().get("inntekt"), 0)
+            assertNotNull(ut.value().get("inntekt"))
         }
     }
 
@@ -74,7 +75,7 @@ class DatalasterTopologyTest {
             )
 
             assertTrue { ut != null }
-            assertEquals(ut.value().get("inntekt"), 0)
+            assertNotNull(ut.value().get("inntekt"))
             assertEquals(ut.value().get("otherData"), "data")
         }
     }

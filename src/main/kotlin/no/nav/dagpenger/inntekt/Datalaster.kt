@@ -37,21 +37,21 @@ class Datalaster(val env: Environment) : Service() {
             .peek { _, value -> LOGGER.info { "Received dagpenger behov $value" } }
             .mapValues { value: JSONObject -> DagpengerBehov(value) }
             .filter { _, dpBehov -> dpBehov.needInntekt() }
-            .mapValues { value ->
+            .mapValues { behov ->
                 run {
                     val inntekt = fetchInntektData()
-                    val jsonObject = value.jsonObject
-                    jsonObject.put("inntekt", inntekt)
-                    return@run jsonObject
+                    behov.addInntekt(inntekt)
+                    return@run behov
                 }
             }
+            .mapValues { behov -> behov.jsonObject }
             .to(dagpengerBehovTopic.name, Produced.with(dagpengerBehovTopic.keySerde, dagpengerBehovTopic.valueSerde))
 
         return builder.build()
     }
 
-    private fun fetchInntektData(): Int {
-        return 0
+    private fun fetchInntektData(): Inntekt {
+        return Inntekt("id123", 0)
     }
 
     override fun getConfig(): Properties {
