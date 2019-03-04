@@ -1,4 +1,4 @@
-package no.nav.dagpenger.inntekt
+package no.nav.dagpenger.datalaster.inntekt
 
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer

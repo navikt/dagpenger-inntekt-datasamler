@@ -1,14 +1,18 @@
 package no.nav.dagpenger.inntekt
 
+import no.nav.dagpenger.datalaster.inntekt.Datalaster
+import no.nav.dagpenger.datalaster.inntekt.Environment
+import no.nav.dagpenger.datalaster.inntekt.Inntekt
+import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
+import no.nav.dagpenger.datalaster.inntekt.SubsumsjonsBehov
+import no.nav.dagpenger.datalaster.inntekt.dagpengerBehovTopic
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.Properties
-import kotlin.test.assertTrue
 
 class DatalasterTopologyTest {
 
@@ -26,47 +30,33 @@ class DatalasterTopologyTest {
         }
     }
 
-    @Test
-    fun ` Should add inntekt to dagpenger behov `() {
-        val datalaster = Datalaster(
-            Environment(
-                username = "bogus",
-                password = "bogus"
-            )
-        )
-
-        val jsonObject = JSONObject()
-        jsonObject.put("tasks", listOf("hentInntekt"))
-
-        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
-            val inputRecord = factory.create(jsonObject)
-            topologyTestDriver.pipeInput(inputRecord)
-            val ut = topologyTestDriver.readOutput(
-                dagpengerBehovTopic.name,
-                dagpengerBehovTopic.keySerde.deserializer(),
-                dagpengerBehovTopic.valueSerde.deserializer()
-            )
-
-            assertTrue { ut != null }
-            assertNotNull(ut.value().get("inntekt"))
+    class DummyInntektApiClient : InntektApiClient {
+        override fun getInntekt(aktørId: String, vedtakId: Int, beregningsDato: LocalDate): Inntekt {
+            return Inntekt("12345", emptyList())
         }
     }
 
     @Test
-    fun ` Should  not manipulate other data than add inntekt to dagpenger behov `() {
+    fun ` Should add inntekt to dagpenger behov `() {
         val datalaster = Datalaster(
             Environment(
-                username = "bogus",
-                password = "bogus"
-            )
+                "user",
+                "pass",
+                "",
+                ""
+            ),
+            DummyInntektApiClient()
         )
 
-        val jsonObject = JSONObject()
-        jsonObject.put("tasks", listOf("hentInntekt"))
-        jsonObject.put("otherData", "data")
+        val behov = SubsumsjonsBehov.Builder()
+            .aktørId("12345")
+            .vedtakId(123)
+            .beregningsDato(LocalDate.now())
+            .task(listOf("hentInntekt"))
+            .build()
 
         TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
-            val inputRecord = factory.create(jsonObject)
+            val inputRecord = factory.create(behov.jsonObject)
             topologyTestDriver.pipeInput(inputRecord)
             val ut = topologyTestDriver.readOutput(
                 dagpengerBehovTopic.name,
@@ -74,9 +64,8 @@ class DatalasterTopologyTest {
                 dagpengerBehovTopic.valueSerde.deserializer()
             )
 
-            assertTrue { ut != null }
-            assertNotNull(ut.value().get("inntekt"))
-            assertEquals(ut.value().get("otherData"), "data")
+            val utBehov = SubsumsjonsBehov(ut.value())
+            assert(utBehov.hasInntekt())
         }
     }
 }

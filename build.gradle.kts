@@ -44,18 +44,29 @@ val confluentVersion = "5.0.0"
 val prometheusVersion = "0.6.0"
 val orgJsonVersion = "20180813"
 val ktorVersion = "1.0.0"
+val fuelVersion = "2.0.1"
+val moshiVersion = "1.8.0"
+val ktorMoshiVersion = "1.0.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     implementation("no.nav.dagpenger:streams:0.2.5-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.2.1-SNAPSHOT")
+
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
     compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")
     compile("io.prometheus:simpleclient_common:$prometheusVersion")
     compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     compile("io.ktor:ktor-server-netty:$ktorVersion")
+
+    implementation("com.squareup.moshi:moshi-adapters:$moshiVersion")
+    implementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
+    implementation("com.squareup.moshi:moshi:$moshiVersion")
+    implementation("com.ryanharter.ktor:ktor-moshi:$ktorMoshiVersion")
+
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
+    implementation("com.github.kittinunf.fuel:fuel-moshi:$fuelVersion")
 
     implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
     implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
@@ -69,6 +80,8 @@ dependencies {
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jupiterVersion")
     testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaVersion")
     testImplementation("no.nav:kafka-embedded-env:2.0.2")
+    testImplementation("com.github.tomakehurst:wiremock:2.19.0")
+    testImplementation("junit:junit:4.12")
 }
 
 application {
