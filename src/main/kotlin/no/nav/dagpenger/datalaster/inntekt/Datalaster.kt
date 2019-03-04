@@ -1,6 +1,7 @@
-package no.nav.dagpenger.inntekt
+package no.nav.dagpenger.datalaster.inntekt
 
 import mu.KotlinLogging
+import no.nav.dagpenger.datalaster.inntekt.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topic
@@ -12,11 +13,12 @@ import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
 import org.apache.kafka.streams.kstream.Produced
 import org.json.JSONObject
+import java.time.LocalDate
 import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
-class Datalaster(val env: Environment) : Service() {
+class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : Service() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
@@ -35,11 +37,15 @@ class Datalaster(val env: Environment) : Service() {
 
         stream
             .peek { _, value -> LOGGER.info { "Received dagpenger behov $value" } }
-            .mapValues { value: JSONObject -> DagpengerBehov(value) }
+            .mapValues { value: JSONObject -> SubsumsjonsBehov(value) }
             .filter { _, dpBehov -> dpBehov.needInntekt() }
             .mapValues { behov ->
                 run {
-                    val inntekt = fetchInntektData()
+                    val inntekt = fetchInntektData(
+                        behov.getAktørId(),
+                        behov.getVedtakId(),
+                        behov.getBeregningsDato()
+                    )
                     behov.addInntekt(inntekt)
                     return@run behov
                 }
@@ -50,8 +56,12 @@ class Datalaster(val env: Environment) : Service() {
         return builder.build()
     }
 
-    private fun fetchInntektData(): Inntekt {
-        return Inntekt("id123", 0)
+    private fun fetchInntektData(
+        aktørId: String,
+        vedtakId: Int,
+        beregningsDato: LocalDate
+    ): Inntekt {
+        return inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
     }
 
     override fun getConfig(): Properties {
@@ -65,7 +75,12 @@ class Datalaster(val env: Environment) : Service() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val datalaster = Datalaster(Environment())
+            val env = Environment()
+            val inntektApiHttpClient = InntektApiHttpClient(
+                env.inntektApiUrl,
+                StsOidcClient(env.oicdStsUrl, env.username, env.password)
+            )
+            val datalaster = Datalaster(env, inntektApiHttpClient)
             datalaster.start()
         }
     }
@@ -74,5 +89,8 @@ class Datalaster(val env: Environment) : Service() {
 val dagpengerBehovTopic = Topic(
     name = "privat-dagpenger-behov-alpha",
     keySerde = Serdes.StringSerde(),
-    valueSerde = Serdes.serdeFrom(JsonSerializer(), JsonDeserializer())
+    valueSerde = Serdes.serdeFrom(
+        JsonSerializer(),
+        JsonDeserializer()
+    )
 )

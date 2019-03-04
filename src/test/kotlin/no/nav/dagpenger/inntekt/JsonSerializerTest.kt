@@ -1,5 +1,7 @@
 package no.nav.dagpenger.inntekt
 
+import no.nav.dagpenger.datalaster.inntekt.JsonDeserializer
+import no.nav.dagpenger.datalaster.inntekt.JsonSerializer
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
