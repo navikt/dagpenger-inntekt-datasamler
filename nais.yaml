@@ -22,5 +22,5 @@ fasitResources:
     resourceType: baseUrl
   - alias: dp-datalaster-inntekt-properties
     resourceType: applicationproperties
-  - alias: dp-inntekt-api-rest
+  - alias: dagpenger-inntekt-api-rest
     resourceType: restservice
