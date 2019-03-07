@@ -24,3 +24,7 @@ fasitResources:
     resourceType: applicationproperties
   - alias: dagpenger-inntekt-api-rest
     resourceType: restservice
+  - alias: security-token-service-issuer
+    resourceType: baseUrl
+    propertyMap:
+      url: OIDC_STS_ISSUERURL
