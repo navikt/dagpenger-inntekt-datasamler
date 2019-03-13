@@ -40,7 +40,7 @@ val kafkaVersion = "2.0.1"
 val kotlinLoggingVersion = "1.6.22"
 val log4j2Version = "2.11.1"
 val jupiterVersion = "5.3.2"
-val confluentVersion = "5.0.0"
+val confluentVersion = "5.0.2"
 val prometheusVersion = "0.6.0"
 val orgJsonVersion = "20180813"
 val ktorVersion = "1.0.0"
@@ -55,7 +55,6 @@ dependencies {
 
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("org.apache.kafka:kafka-streams:$kafkaVersion")
-    compile("io.confluent:kafka-streams-avro-serde:$confluentVersion")
     compile("io.prometheus:simpleclient_common:$prometheusVersion")
     compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     compile("io.ktor:ktor-server-netty:$ktorVersion")
