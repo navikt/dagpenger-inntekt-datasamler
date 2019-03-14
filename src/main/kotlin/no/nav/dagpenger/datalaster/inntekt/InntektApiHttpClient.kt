@@ -19,9 +19,8 @@ class InntektApiHttpClient(
 
         val url = "${inntektApiUrl}v1/inntekt"
 
-        val jsonResponseAdapter = moshiInstance.adapter(Inntekt::class.java)
-
         val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
+
         val requestBody = InntektRequest(
             aktørId,
             vedtakId,
@@ -32,7 +31,7 @@ class InntektApiHttpClient(
         val (_, response, result) = with(url.httpPost()) {
             header("Content-Type" to "application/json")
             body(jsonBody)
-            responseObject(moshiDeserializerOf(jsonResponseAdapter))
+            responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
         return when (result) {
             is Result.Failure -> throw InntektApiHttpClientException(

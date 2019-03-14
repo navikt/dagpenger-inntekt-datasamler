@@ -4,12 +4,14 @@ import no.nav.dagpenger.datalaster.inntekt.Datalaster
 import no.nav.dagpenger.datalaster.inntekt.Environment
 import no.nav.dagpenger.datalaster.inntekt.Inntekt
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
-import no.nav.dagpenger.datalaster.inntekt.SubsumsjonsBehov
-import no.nav.dagpenger.datalaster.inntekt.dagpengerBehovTopic
+import no.nav.dagpenger.datalaster.inntekt.inntektJsonAdapter
+import no.nav.dagpenger.streams.Packet
+import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
-import org.json.JSONObject
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.Properties
@@ -18,10 +20,10 @@ class DatalasterTopologyTest {
 
     companion object {
 
-        val factory = ConsumerRecordFactory<String, JSONObject>(
-            dagpengerBehovTopic.name,
-            dagpengerBehovTopic.keySerde.serializer(),
-            dagpengerBehovTopic.valueSerde.serializer()
+        val factory = ConsumerRecordFactory<String, Packet>(
+            Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+            Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.serializer(),
+            Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.serializer()
         )
 
         val config = Properties().apply {
@@ -37,7 +39,7 @@ class DatalasterTopologyTest {
     }
 
     @Test
-    fun ` Should add inntekt to dagpenger behov `() {
+    fun `Should add inntekt to packet`() {
         val datalaster = Datalaster(
             Environment(
                 "user",
@@ -48,24 +50,31 @@ class DatalasterTopologyTest {
             DummyInntektApiClient()
         )
 
-        val behov = SubsumsjonsBehov.Builder()
-            .aktørId("12345")
-            .vedtakId(123)
-            .beregningsDato(LocalDate.now())
-            .task(listOf("hentInntekt"))
-            .build()
+        val packetJson = """
+            {
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25,
+                "otherField": "should be unchanged"
+            }
+        """.trimIndent()
 
         TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
-            val inputRecord = factory.create(behov.jsonObject)
+            val inputRecord = factory.create(Packet(packetJson))
             topologyTestDriver.pipeInput(inputRecord)
             val ut = topologyTestDriver.readOutput(
-                dagpengerBehovTopic.name,
-                dagpengerBehovTopic.keySerde.deserializer(),
-                dagpengerBehovTopic.valueSerde.deserializer()
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
             )
 
-            val utBehov = SubsumsjonsBehov(ut.value())
-            assert(utBehov.hasInntekt())
+            assertTrue { ut != null }
+            assertTrue(ut.value().hasField("inntektV1"))
+            assertEquals("12345", ut.value().getObjectValue("inntektV1", inntektJsonAdapter::fromJson)?.inntektsId)
+            assertEquals("12345", ut.value().getStringValue("aktørId"))
+            assertEquals(123, ut.value().getIntValue("vedtakId"))
+            assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
+            assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
         }
     }
 }
