@@ -3,7 +3,7 @@ package no.nav.dagpenger.datalaster.inntekt
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
-import no.nav.dagpenger.datalaster.inntekt.oidc.OidcClient
+import no.nav.dagpenger.oidc.OidcClient
 import java.time.LocalDate
 
 class InntektApiHttpClient(

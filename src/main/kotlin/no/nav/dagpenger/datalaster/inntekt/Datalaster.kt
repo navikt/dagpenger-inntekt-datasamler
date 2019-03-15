@@ -1,13 +1,12 @@
 package no.nav.dagpenger.datalaster.inntekt
 
 import mu.KotlinLogging
-import no.nav.dagpenger.datalaster.inntekt.oidc.StsOidcClient
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Service
 import no.nav.dagpenger.streams.Topic
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Consumed
@@ -22,12 +21,7 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
-    override fun setupStreams(): KafkaStreams {
-        LOGGER.info { "Initiating start of $SERVICE_APP_ID" }
-        return KafkaStreams(buildTopology(), getConfig())
-    }
-
-    internal fun buildTopology(): Topology {
+    override fun buildTopology(): Topology {
         val builder = StreamsBuilder()
 
         val stream = builder.stream(
