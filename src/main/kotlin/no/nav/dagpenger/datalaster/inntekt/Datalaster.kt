@@ -1,19 +1,15 @@
 package no.nav.dagpenger.datalaster.inntekt
 
-import mu.KotlinLogging
 import no.nav.dagpenger.datalaster.inntekt.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.Packet
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
-import org.apache.kafka.streams.kstream.KStream
+import org.apache.kafka.streams.kstream.Predicate
+
 import java.util.Properties
 
-private val LOGGER = KotlinLogging.logger {}
-
 class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
-    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
-    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     companion object {
         @JvmStatic
@@ -33,21 +29,24 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         const val BEREGNINGSDATO = "beregningsDato"
     }
 
-    override fun river(stream: KStream<String, Packet>): KStream<String, Packet> = stream
-        .peek { _, value -> LOGGER.info { "Received dagpenger packet $value" } }
-        .filter { _, packet -> !packet.hasField(INNTEKT) }
-        .filter { _, packet -> packet.hasFields(AKTØRID, VEDTAKID, BEREGNINGSDATO) }
-        .mapValues { packet ->
-            run {
-                val aktørId = packet.getStringValue(AKTØRID) ?: throw RuntimeException("Missing aktørId")
-                val vedtakId = packet.getIntValue(VEDTAKID) ?: throw RuntimeException("Missing aktørId")
-                val beregningsDato = packet.getLocalDate(BEREGNINGSDATO) ?: throw RuntimeException("Missing aktørId")
+    override fun filterPredicates(): List<Predicate<String, Packet>> {
+        return listOf(Predicate { _, packet -> !packet.hasField(INNTEKT) })
+    }
 
-                val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-                packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
-                return@run packet
-            }
+    override fun onPacket(packet: Packet): Packet {
+        return run {
+            val aktørId = packet.getStringValue(AKTØRID) ?: throw RuntimeException("Missing aktørId")
+            val vedtakId = packet.getIntValue(VEDTAKID) ?: throw RuntimeException("Missing aktørId")
+            val beregningsDato = packet.getLocalDate(BEREGNINGSDATO) ?: throw RuntimeException("Missing aktørId")
+
+            val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+            packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
+            return@run packet
         }
+    }
+
+    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
+    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     override fun getConfig(): Properties {
         return streamConfig(
@@ -57,4 +56,3 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         )
     }
 }
-
