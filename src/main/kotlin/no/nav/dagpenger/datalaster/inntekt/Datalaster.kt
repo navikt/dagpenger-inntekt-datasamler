@@ -10,6 +10,8 @@ import org.apache.kafka.streams.kstream.Predicate
 import java.util.Properties
 
 class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
+    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
+    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     companion object {
         @JvmStatic
@@ -34,19 +36,15 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
     }
 
     override fun onPacket(packet: Packet): Packet {
-        return run {
-            val aktørId = packet.getStringValue(AKTØRID) ?: throw RuntimeException("Missing aktørId")
-            val vedtakId = packet.getIntValue(VEDTAKID) ?: throw RuntimeException("Missing aktørId")
-            val beregningsDato = packet.getLocalDate(BEREGNINGSDATO) ?: throw RuntimeException("Missing aktørId")
+        val aktørId = packet.getStringValue(AKTØRID)
+        val vedtakId = packet.getIntValue(VEDTAKID)
+        val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
-            val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-            packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
-            return@run packet
-        }
+        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
+        return packet
     }
 
-    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
-    override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     override fun getConfig(): Properties {
         return streamConfig(

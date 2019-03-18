@@ -11,6 +11,7 @@ import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -75,6 +76,40 @@ class DatalasterTopologyTest {
             assertEquals(123, ut.value().getIntValue("vedtakId"))
             assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
             assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
+        }
+    }
+
+    @Test
+    fun `Should ignore packet with inntekt `() {
+        val datalaster = Datalaster(
+            Environment(
+                "user",
+                "pass",
+                "",
+                ""
+            ),
+            DummyInntektApiClient()
+        )
+
+        val packetJson = """
+            {
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25,
+                "inntektV1": "something"
+            }
+        """.trimIndent()
+
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(Packet(packetJson))
+            topologyTestDriver.pipeInput(inputRecord)
+            val ut = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            assertNull(ut)
         }
     }
 }
