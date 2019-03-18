@@ -5,7 +5,7 @@ import no.nav.dagpenger.datalaster.inntekt.Environment
 import no.nav.dagpenger.datalaster.inntekt.Inntekt
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
 import no.nav.dagpenger.datalaster.inntekt.inntektJsonAdapter
-import no.nav.dagpenger.streams.Packet
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver

@@ -31,7 +31,7 @@ class InntektApiHttpClientTest {
 
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v1/inntekt"))
-                //.withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                // .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")

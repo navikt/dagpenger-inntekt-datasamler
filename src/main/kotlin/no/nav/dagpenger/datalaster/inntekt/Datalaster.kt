@@ -1,8 +1,8 @@
 package no.nav.dagpenger.datalaster.inntekt
 
 import no.nav.dagpenger.datalaster.inntekt.oidc.StsOidcClient
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.streams.KafkaCredential
-import no.nav.dagpenger.streams.Packet
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
@@ -44,7 +44,6 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
         return packet
     }
-
 
     override fun getConfig(): Properties {
         return streamConfig(
