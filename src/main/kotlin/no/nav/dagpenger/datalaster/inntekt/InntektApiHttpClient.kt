@@ -35,9 +35,7 @@ class InntektApiHttpClient(
         }
         return when (result) {
             is Result.Failure -> throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Response message ${response.responseMessage}",
-                result.getException()
-            )
+                "Failed to fetch inntekt. Response message ${response.responseMessage}. Error message: ${result.error.message}")
             is Result.Success -> result.get()
         }
     }
@@ -52,6 +50,5 @@ data class InntektRequest(
 fun String.toBearerToken() = "Bearer $this"
 
 class InntektApiHttpClientException(
-    override val message: String,
-    override val cause: Throwable
-) : RuntimeException(message, cause)
+    override val message: String
+) : RuntimeException(message)

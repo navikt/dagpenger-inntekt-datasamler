@@ -13,17 +13,6 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
 
     companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val env = Environment()
-            val inntektApiHttpClient = InntektApiHttpClient(
-                env.inntektApiUrl,
-                StsOidcClient(env.oicdStsUrl, env.username, env.password)
-            )
-            val datalaster = Datalaster(env, inntektApiHttpClient)
-            datalaster.start()
-        }
-
         const val INNTEKT = "inntektV1"
         const val AKTØRID = "aktørId"
         const val VEDTAKID = "vedtakId"
@@ -51,4 +40,14 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
             credential = KafkaCredential(env.username, env.password)
         )
     }
+}
+
+fun main(args: Array<String>) {
+    val env = Environment()
+    val inntektApiHttpClient = InntektApiHttpClient(
+        env.inntektApiUrl,
+        StsOidcClient(env.oicdStsUrl, env.username, env.password)
+    )
+    val datalaster = Datalaster(env, inntektApiHttpClient)
+    datalaster.start()
 }

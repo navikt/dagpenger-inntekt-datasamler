@@ -87,7 +87,7 @@ dependencies {
 
 application {
     applicationName = "dp-datalaster-inntekt"
-    mainClassName = "no.nav.dagpenger.datalaster.inntekt.Datalaster"
+    mainClassName = "no.nav.dagpenger.datalaster.inntekt.DatalasterKt"
 }
 
 spotless {
