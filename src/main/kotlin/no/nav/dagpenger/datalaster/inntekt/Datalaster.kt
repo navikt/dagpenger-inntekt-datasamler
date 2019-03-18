@@ -1,70 +1,16 @@
 package no.nav.dagpenger.datalaster.inntekt
 
-import mu.KotlinLogging
+import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
-import no.nav.dagpenger.streams.Service
-import no.nav.dagpenger.streams.Topic
+import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
-import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.streams.StreamsBuilder
-import org.apache.kafka.streams.Topology
-import org.apache.kafka.streams.kstream.Consumed
-import org.apache.kafka.streams.kstream.Produced
-import org.json.JSONObject
-import java.time.LocalDate
+import org.apache.kafka.streams.kstream.Predicate
 import java.util.Properties
 
-private val LOGGER = KotlinLogging.logger {}
-
-class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : Service() {
+class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
-
-    override fun buildTopology(): Topology {
-        val builder = StreamsBuilder()
-
-        val stream = builder.stream(
-            dagpengerBehovTopic.name,
-            Consumed.with(dagpengerBehovTopic.keySerde, dagpengerBehovTopic.valueSerde)
-        )
-
-        stream
-            .peek { _, value -> LOGGER.info { "Received dagpenger behov $value" } }
-            .mapValues { value: JSONObject -> SubsumsjonsBehov(value) }
-            .filter { _, dpBehov -> dpBehov.needInntekt() }
-            .mapValues { behov ->
-                run {
-                    val inntekt = fetchInntektData(
-                        behov.getAktørId(),
-                        behov.getVedtakId(),
-                        behov.getBeregningsDato()
-                    )
-                    behov.addInntekt(inntekt)
-                    return@run behov
-                }
-            }
-            .mapValues { behov -> behov.jsonObject }
-            .to(dagpengerBehovTopic.name, Produced.with(dagpengerBehovTopic.keySerde, dagpengerBehovTopic.valueSerde))
-
-        return builder.build()
-    }
-
-    private fun fetchInntektData(
-        aktørId: String,
-        vedtakId: Int,
-        beregningsDato: LocalDate
-    ): Inntekt {
-        return inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-    }
-
-    override fun getConfig(): Properties {
-        return streamConfig(
-            appId = SERVICE_APP_ID,
-            bootStapServerUrl = env.bootstrapServersUrl,
-            credential = KafkaCredential(env.username, env.password)
-        )
-    }
 
     companion object {
         @JvmStatic
@@ -77,14 +23,32 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
             val datalaster = Datalaster(env, inntektApiHttpClient)
             datalaster.start()
         }
+
+        const val INNTEKT = "inntektV1"
+        const val AKTØRID = "aktørId"
+        const val VEDTAKID = "vedtakId"
+        const val BEREGNINGSDATO = "beregningsDato"
+    }
+
+    override fun filterPredicates(): List<Predicate<String, Packet>> {
+        return listOf(Predicate { _, packet -> !packet.hasField(INNTEKT) })
+    }
+
+    override fun onPacket(packet: Packet): Packet {
+        val aktørId = packet.getStringValue(AKTØRID)
+        val vedtakId = packet.getIntValue(VEDTAKID)
+        val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+
+        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
+        return packet
+    }
+
+    override fun getConfig(): Properties {
+        return streamConfig(
+            appId = SERVICE_APP_ID,
+            bootStapServerUrl = env.bootstrapServersUrl,
+            credential = KafkaCredential(env.username, env.password)
+        )
     }
 }
-
-val dagpengerBehovTopic = Topic(
-    name = "privat-dagpenger-behov-alpha",
-    keySerde = Serdes.StringSerde(),
-    valueSerde = Serdes.serdeFrom(
-        JsonSerializer(),
-        JsonDeserializer()
-    )
-)
