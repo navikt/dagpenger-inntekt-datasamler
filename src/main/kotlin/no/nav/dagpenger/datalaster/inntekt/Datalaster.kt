@@ -1,12 +1,11 @@
 package no.nav.dagpenger.datalaster.inntekt
 
-import no.nav.dagpenger.datalaster.inntekt.oidc.StsOidcClient
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
-
 import java.util.Properties
 
 class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
