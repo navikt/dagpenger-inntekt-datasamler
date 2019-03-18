@@ -52,7 +52,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 
-    implementation("no.nav.dagpenger:streams:0.3.0-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.3.1-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.3.1-SNAPSHOT")
 
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
