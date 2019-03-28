@@ -17,10 +17,14 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         const val AKTØRID = "aktørId"
         const val VEDTAKID = "vedtakId"
         const val BEREGNINGSDATO = "beregningsDato"
+        const val MANUELT_GRUNNLAG = "manueltGrunnlag"
     }
 
     override fun filterPredicates(): List<Predicate<String, Packet>> {
-        return listOf(Predicate { _, packet -> !packet.hasField(INNTEKT) })
+        return listOf(
+            Predicate { _, packet -> !packet.hasField(INNTEKT) },
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
+        )
     }
 
     override fun onPacket(packet: Packet): Packet {
