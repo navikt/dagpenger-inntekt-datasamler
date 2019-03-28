@@ -112,4 +112,38 @@ class DatalasterTopologyTest {
             assertNull(ut)
         }
     }
+
+    @Test
+    fun `Should ignore packet with manuelt grunnlag `() {
+        val datalaster = Datalaster(
+            Environment(
+                "user",
+                "pass",
+                "",
+                ""
+            ),
+            DummyInntektApiClient()
+        )
+
+        val packetJson = """
+            {
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25,
+                "manueltGrunnlag": 50000
+            }
+        """.trimIndent()
+
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(Packet(packetJson))
+            topologyTestDriver.pipeInput(inputRecord)
+            val ut = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            assertNull(ut)
+        }
+    }
 }
