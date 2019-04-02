@@ -31,15 +31,8 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         val aktørId = packet.getStringValue(AKTØRID)
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-
-        if (aktørId == "1234") {
-            packet.putValue(INNTEKT, Inntekt("1234", emptyList()), inntektJsonAdapter::toJson)
-        } else {
-
-            val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-            packet.putValue(INNTEKT, inntekt, inntektJsonAdapter::toJson)
-        }
-
+        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
         return packet
     }
 

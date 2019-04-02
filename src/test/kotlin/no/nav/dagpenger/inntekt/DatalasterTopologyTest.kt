@@ -71,7 +71,7 @@ class DatalasterTopologyTest {
 
             assertTrue { ut != null }
             assertTrue(ut.value().hasField("inntektV1"))
-            assertEquals("12345", ut.value().getObjectValue("inntektV1") { checkNotNull(inntektJsonAdapter.fromJson(it)) }.inntektsId)
+            assertEquals("12345", ut.value().getObjectValue("inntektV1") { serialized -> checkNotNull(inntektJsonAdapter.fromJsonValue(serialized)) }.inntektsId)
             assertEquals("12345", ut.value().getStringValue("aktørId"))
             assertEquals(123, ut.value().getIntValue("vedtakId"))
             assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
