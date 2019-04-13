@@ -6,11 +6,14 @@ import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
+import org.apache.logging.log4j.LogManager
 import java.util.Properties
 
 class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = env.httpPort ?: super.HTTP_PORT
+
+    private val logger = LogManager.getLogger()
 
     companion object {
         const val INNTEKT = "inntektV1"
@@ -23,7 +26,8 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
-            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
+            Predicate { _, packet -> !packet.hasProblem() }
         )
     }
 
@@ -31,8 +35,19 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         val aktørId = packet.getStringValue(AKTØRID)
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
-        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-        packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
+
+        when (val result: com.github.kittinunf.result.Result<Inntekt, InntektApiHttpClientException> =
+            inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)) {
+            is com.github.kittinunf.result.Result.Failure -> {
+                logger.error("Failed to add inntekt", result.error)
+                packet.addProblem(result.error.problem)
+            }
+            is com.github.kittinunf.result.Result.Success -> packet.putValue(
+                INNTEKT,
+                inntektJsonAdapter.toJsonValue(result.value)!!
+            )
+        }
+
         return packet
     }
 

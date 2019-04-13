@@ -47,6 +47,7 @@ val ktorVersion = "1.0.0"
 val fuelVersion = "2.0.1"
 val moshiVersion = "1.8.0"
 val ktorMoshiVersion = "1.0.1"
+val mockkVersion = "1.9.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -83,6 +84,7 @@ dependencies {
     testImplementation("no.nav:kafka-embedded-env:2.0.2")
     testImplementation("com.github.tomakehurst:wiremock:2.19.0")
     testImplementation("junit:junit:4.12")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 application {
