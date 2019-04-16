@@ -1,0 +1,9 @@
+bases:
+  - ../base
+
+commonLabels:
+  app: dp-datalaster-inntekt
+  team: teamdagpenger
+
+patchesStrategicMerge:
+  - nais.yaml
