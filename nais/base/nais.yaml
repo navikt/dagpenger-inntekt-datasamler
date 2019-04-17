@@ -4,7 +4,7 @@ metadata:
   name: dp-datalaster-inntekt
 spec:
   image: repo.adeo.no:5443/dp-datalaster-inntekt:latest
-  port: 8093
+  port: 8094
   liveness:
     path: /isAlive
   readiness:
