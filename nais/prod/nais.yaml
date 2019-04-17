@@ -1,0 +1,14 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dp-datalaster-inntekt
+spec:
+  env:
+    - name:  KAFKA_BOOTSTRAP_SERVERS
+      value: "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443"
+    - name: DAGPENGER_INNTEKT_API_REST_URL
+      value: "http://dp-inntekt-api.default"
+    - name:  DP_INNTEKT_API_URL
+      value: "http://dp-inntekt-api.default"
+    - name: OIDC_STS_ISSUERURL
+      value: "https://security-token-service.nais.adeo.no"
