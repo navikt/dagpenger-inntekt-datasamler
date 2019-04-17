@@ -6,9 +6,7 @@ spec:
   env:
     - name:  KAFKA_BOOTSTRAP_SERVERS
       value: "d26apvl00159.test.local:8443,d26apvl00160.test.local:8443,d26apvl00161.test.local:8443"
-    - name: DAGPENGER_INNTEKT_API_REST_URL
-      value: "http://dp-inntekt-api.default"
     - name:  DP_INNTEKT_API_URL
-      value: "http://dp-inntekt-api.default"
+      value: "http://dp-inntekt-api/"
     - name: OIDC_STS_ISSUERURL
       value: "https://security-token-service.nais.preprod.local"
