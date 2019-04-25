@@ -3,7 +3,12 @@ package no.nav.dagpenger.datalaster.inntekt
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.flatMapError
+import com.squareup.moshi.JsonAdapter
+import no.nav.dagpenger.events.Problem
+import no.nav.dagpenger.events.moshiInstance
 import no.nav.dagpenger.oidc.OidcClient
+import java.net.URI
 import java.time.LocalDate
 
 class InntektApiHttpClient(
@@ -11,15 +16,18 @@ class InntektApiHttpClient(
     private val oidcClient: OidcClient
 ) : InntektApiClient {
 
+    private val inntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)
+
+    private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
+    private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
+
     override fun getInntekt(
         aktørId: String,
         vedtakId: Int,
         beregningsDato: LocalDate
-    ): Inntekt {
+    ): Result<Inntekt, InntektApiHttpClientException> {
 
         val url = "${inntektApiUrl}v1/inntekt"
-
-        val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
 
         val requestBody = InntektRequest(
             aktørId,
@@ -33,10 +41,23 @@ class InntektApiHttpClient(
             body(jsonBody)
             responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
-        return when (result) {
-            is Result.Failure -> throw InntektApiHttpClientException(
-                "Failed to fetch inntekt. Response message ${response.responseMessage}. Error message: ${result.error.message}")
-            is Result.Success -> result.get()
+
+        return result.flatMapError {
+
+            val problem = runCatching {
+                problemAdapter.fromJson(it.response.body().asString("application/json"))!!
+            }.getOrDefault(
+                Problem(
+                    URI.create("urn:dp:error:inntektskomponenten"),
+                    "Klarte ikke å hente inntekt"
+                )
+            )
+            Result.error(
+                InntektApiHttpClientException(
+                    "Failed to fetch inntekt. Response message ${response.responseMessage}. Error message: ${it.message}",
+                    problem
+                )
+            )
         }
     }
 }
@@ -48,7 +69,3 @@ data class InntektRequest(
 )
 
 fun String.toBearerToken() = "Bearer $this"
-
-class InntektApiHttpClientException(
-    override val message: String
-) : RuntimeException(message)
