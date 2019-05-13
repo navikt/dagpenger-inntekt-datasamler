@@ -56,11 +56,12 @@ dependencies {
     implementation("no.nav.dagpenger:streams:0.3.3-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.3.8-SNAPSHOT")
 
-    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
-    compile("org.apache.kafka:kafka-streams:$kafkaVersion")
-    compile("io.prometheus:simpleclient_common:$prometheusVersion")
-    compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
-    compile("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
+    implementation("io.prometheus:simpleclient_common:$prometheusVersion")
+    implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
+    implementation("io.prometheus:simpleclient_log4j2:$prometheusVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
 
     implementation("com.squareup.moshi:moshi-adapters:$moshiVersion")
     implementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
