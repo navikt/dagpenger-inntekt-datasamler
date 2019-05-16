@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClient
+import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
 import no.nav.dagpenger.oidc.OidcClient
 import no.nav.dagpenger.oidc.OidcToken
 import org.junit.Rule
@@ -11,6 +12,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class InntektApiHttpClientTest {
 
@@ -51,7 +53,7 @@ class InntektApiHttpClientTest {
                 LocalDate.now()
             )
 
-        assertEquals("12345", inntektResponse.get().inntektsId)
+        assertEquals("12345", inntektResponse.inntektsId)
     }
 
     @Test
@@ -82,18 +84,19 @@ class InntektApiHttpClientTest {
             DummyOidcClient()
         )
 
-        val inntektResponse =
+        val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             inntektApiClient.getInntekt(
                 "",
                 123,
                 LocalDate.now()
             )
+        }
 
-        val problem = inntektResponse.component2()?.problem
-        assertEquals("urn:dp:error:inntektskomponenten", problem?.type?.toASCIIString())
-        assertEquals("Klarte ikke å hente inntekt for beregningen", problem?.title)
-        assertEquals(500, problem?.status)
-        assertEquals("Innhenting av inntekt mot inntektskomponenten feilet.", problem?.detail)
+        val problem = inntektApiHttpClientException.problem
+        assertEquals("urn:dp:error:inntektskomponenten", problem.type.toASCIIString())
+        assertEquals("Klarte ikke å hente inntekt for beregningen", problem.title)
+        assertEquals(500, problem.status)
+        assertEquals("Innhenting av inntekt mot inntektskomponenten feilet.", problem.detail)
     }
 
     @Test
@@ -112,16 +115,17 @@ class InntektApiHttpClientTest {
             DummyOidcClient()
         )
 
-        val inntektResponse =
+        val inntektApiHttpClientException = assertFailsWith<InntektApiHttpClientException> {
             inntektApiClient.getInntekt(
                 "",
                 123,
                 LocalDate.now()
             )
+        }
 
-        val problem = inntektResponse.component2()?.problem
-        assertEquals("urn:dp:error:inntektskomponenten", problem?.type?.toASCIIString())
-        assertEquals("Klarte ikke å hente inntekt", problem?.title)
-        assertEquals(500, problem?.status)
+        val problem = inntektApiHttpClientException.problem
+        assertEquals("urn:dp:error:inntektskomponenten", problem.type.toASCIIString())
+        assertEquals("Klarte ikke å hente inntekt", problem.title)
+        assertEquals(500, problem.status)
     }
 }

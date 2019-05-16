@@ -1,12 +1,14 @@
 package no.nav.dagpenger.datalaster.inntekt
 
 import no.nav.dagpenger.events.Packet
+import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.oidc.StsOidcClient
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
 import org.apache.logging.log4j.LogManager
+import java.net.URI
 import java.util.Properties
 
 class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClient) : River() {
@@ -26,8 +28,7 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
-            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
-            Predicate { _, packet -> !packet.hasProblem() }
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
         )
     }
 
@@ -36,15 +37,22 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
-        when (val result: com.github.kittinunf.result.Result<Inntekt, InntektApiHttpClientException> =
-            inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)) {
-            is com.github.kittinunf.result.Result.Failure -> {
-                logger.error("Failed to add inntekt", result.error)
-                packet.addProblem(result.error.problem)
-            }
-            is com.github.kittinunf.result.Result.Success -> packet.putValue(
-                INNTEKT,
-                inntektJsonAdapter.toJsonValue(result.value)!!
+        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
+
+        return packet
+    }
+
+    override fun onFailure(packet: Packet, error: Throwable?): Packet {
+        if (error is InntektApiHttpClientException) {
+            logger.error("Failed to add inntekt", error)
+            packet.addProblem(error.problem)
+        } else {
+            packet.addProblem(
+                Problem(
+                    type = URI("urn:dp:error:datalaster"),
+                    title = "Ukjent feil ved lasting av inntektdata"
+                )
             )
         }
 

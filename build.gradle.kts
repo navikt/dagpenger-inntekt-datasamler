@@ -53,11 +53,13 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 
-    implementation("no.nav.dagpenger:streams:0.3.3-SNAPSHOT")
+    implementation("no.nav.dagpenger:streams:0.3.6-SNAPSHOT")
     implementation("no.nav.dagpenger:events:0.3.11-SNAPSHOT")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
+    api("io.confluent:kafka-streams-avro-serde:$confluentVersion")
+
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_log4j2:$prometheusVersion")

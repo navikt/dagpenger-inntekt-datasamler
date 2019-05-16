@@ -3,7 +3,6 @@ package no.nav.dagpenger.datalaster.inntekt
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
-import com.github.kittinunf.result.flatMapError
 import com.squareup.moshi.JsonAdapter
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.moshiInstance
@@ -25,7 +24,7 @@ class InntektApiHttpClient(
         aktørId: String,
         vedtakId: Int,
         beregningsDato: LocalDate
-    ): Result<Inntekt, InntektApiHttpClientException> {
+    ): Inntekt {
 
         val url = "${inntektApiUrl}v1/inntekt"
 
@@ -42,22 +41,21 @@ class InntektApiHttpClient(
             responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
 
-        return result.flatMapError {
-
+        return if (result is Result.Failure) {
             val problem = runCatching {
-                problemAdapter.fromJson(it.response.body().asString("application/json"))!!
+                problemAdapter.fromJson(response.body().asString("application/json"))!!
             }.getOrDefault(
                 Problem(
                     URI.create("urn:dp:error:inntektskomponenten"),
                     "Klarte ikke å hente inntekt"
                 )
             )
-            Result.error(
-                InntektApiHttpClientException(
-                    "Failed to fetch inntekt. Response message ${response.responseMessage}. Error message: ${it.message}",
-                    problem
-                )
+            throw InntektApiHttpClientException(
+                "Failed to fetch inntekt. Response message ${response.responseMessage}",
+                problem
             )
+        } else {
+            result.get()
         }
     }
 }
