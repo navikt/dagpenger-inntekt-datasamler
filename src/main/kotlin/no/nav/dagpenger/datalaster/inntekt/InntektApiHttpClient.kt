@@ -6,14 +6,13 @@ import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMapError
 import com.squareup.moshi.JsonAdapter
 import no.nav.dagpenger.events.Problem
+import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.moshiInstance
-import no.nav.dagpenger.oidc.OidcClient
 import java.net.URI
 import java.time.LocalDate
 
 class InntektApiHttpClient(
-    private val inntektApiUrl: String,
-    private val oidcClient: OidcClient
+    private val inntektApiUrl: String
 ) : InntektApiClient {
 
     private val inntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)

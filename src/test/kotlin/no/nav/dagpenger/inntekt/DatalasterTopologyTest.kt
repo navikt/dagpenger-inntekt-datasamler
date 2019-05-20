@@ -5,12 +5,12 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.dagpenger.datalaster.inntekt.Datalaster
 import no.nav.dagpenger.datalaster.inntekt.Environment
-import no.nav.dagpenger.datalaster.inntekt.Inntekt
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
 import no.nav.dagpenger.datalaster.inntekt.inntektJsonAdapter
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.Problem
+import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.streams.Topics
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver

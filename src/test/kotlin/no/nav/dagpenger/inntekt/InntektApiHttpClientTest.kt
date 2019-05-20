@@ -4,12 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClient
-import no.nav.dagpenger.oidc.OidcClient
-import no.nav.dagpenger.oidc.OidcToken
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
-import java.util.UUID
 import kotlin.test.assertEquals
 
 class InntektApiHttpClientTest {
@@ -17,11 +14,6 @@ class InntektApiHttpClientTest {
     @Rule
     @JvmField
     var wireMockRule = WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort())
-
-    class DummyOidcClient : OidcClient {
-        override fun oidcToken(): OidcToken =
-            OidcToken(UUID.randomUUID().toString(), "openid", 3000)
-    }
 
     @Test
     fun `fetch klassifisert inntekt on 200 ok`() {
@@ -40,8 +32,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
-            DummyOidcClient()
+            wireMockRule.url("")
         )
 
         val inntektResponse =
@@ -78,8 +69,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
-            DummyOidcClient()
+            wireMockRule.url("")
         )
 
         val inntektResponse =
@@ -108,8 +98,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
-            DummyOidcClient()
+            wireMockRule.url("")
         )
 
         val inntektResponse =

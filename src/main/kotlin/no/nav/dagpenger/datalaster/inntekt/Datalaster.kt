@@ -1,7 +1,7 @@
 package no.nav.dagpenger.datalaster.inntekt
 
 import no.nav.dagpenger.events.Packet
-import no.nav.dagpenger.oidc.StsOidcClient
+import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
@@ -63,8 +63,7 @@ class Datalaster(val env: Environment, val inntektApiHttpClient: InntektApiClien
 fun main(args: Array<String>) {
     val env = Environment()
     val inntektApiHttpClient = InntektApiHttpClient(
-        env.inntektApiUrl,
-        StsOidcClient(env.oicdStsUrl, env.username, env.password)
+        env.inntektApiUrl
     )
     val datalaster = Datalaster(env, inntektApiHttpClient)
     datalaster.start()
