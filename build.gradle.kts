@@ -57,6 +57,7 @@ dependencies {
 
     implementation("com.github.navikt:dagpenger-streams:2019.05.20-12.02.83ff2b7cb7f6")
     implementation("com.github.navikt:dagpenger-events:2019.05.20-11.56.33cd4c73a439")
+    implementation("com.github.navikt.dp-biblioteker:ktor-utils:2019.05.21-09.57.669ffe8e266f")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
@@ -99,11 +100,11 @@ application {
 
 spotless {
     kotlin {
-        ktlint()
+        ktlint("0.31.0")
     }
     kotlinGradle {
         target("*.gradle.kts", "additionalScripts/*.gradle.kts")
-        ktlint()
+        ktlint("0.31.0")
     }
 }
 

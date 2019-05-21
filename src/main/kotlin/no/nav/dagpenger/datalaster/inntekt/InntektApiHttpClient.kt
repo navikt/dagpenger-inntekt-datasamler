@@ -4,7 +4,6 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMapError
-import com.squareup.moshi.JsonAdapter
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.events.inntekt.v1.Inntekt
 import no.nav.dagpenger.events.moshiInstance
@@ -12,10 +11,9 @@ import java.net.URI
 import java.time.LocalDate
 
 class InntektApiHttpClient(
-    private val inntektApiUrl: String
+    private val inntektApiUrl: String,
+    private val apiKey: String
 ) : InntektApiClient {
-
-    private val inntektJsonAdapter: JsonAdapter<Inntekt> = moshiInstance.adapter(Inntekt::class.java)
 
     private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
     private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
@@ -37,6 +35,7 @@ class InntektApiHttpClient(
 
         val (_, response, result) = with(url.httpPost()) {
             header("Content-Type" to "application/json")
+            header("X-API-KEY", apiKey)
             body(jsonBody)
             responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
