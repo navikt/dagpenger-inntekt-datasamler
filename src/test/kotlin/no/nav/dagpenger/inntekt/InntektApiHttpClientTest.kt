@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClient
-import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate

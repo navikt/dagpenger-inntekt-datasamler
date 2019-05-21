@@ -8,7 +8,6 @@ import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
 import org.apache.logging.log4j.LogManager
-import java.nio.charset.StandardCharsets
 import java.util.Properties
 
 class Datalaster(val config: Configuration, val inntektApiHttpClient: InntektApiClient) : River() {
@@ -64,8 +63,8 @@ class Datalaster(val config: Configuration, val inntektApiHttpClient: InntektApi
 
 fun main(args: Array<String>) {
     val config = Configuration()
-    val apiKeyVerifier = ApiKeyVerifier(config.application.inntektApiSecret.toByteArray(StandardCharsets.UTF_8))
-    val apiKey = apiKeyVerifier.generate(config.application.inntektApiKey.toByteArray(StandardCharsets.UTF_8)).toString()
+    val apiKeyVerifier = ApiKeyVerifier(config.application.inntektApiSecret)
+    val apiKey = apiKeyVerifier.generate(config.application.inntektApiKey)
     val inntektApiHttpClient = InntektApiHttpClient(
         config.application.inntektApiUrl,
         apiKey
