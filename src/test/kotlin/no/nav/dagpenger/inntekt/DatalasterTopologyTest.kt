@@ -3,8 +3,9 @@ package no.nav.dagpenger.inntekt
 import com.github.kittinunf.result.Result
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.dagpenger.datalaster.inntekt.Configuration
 import no.nav.dagpenger.datalaster.inntekt.Datalaster
-import no.nav.dagpenger.datalaster.inntekt.Environment
+
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
 import no.nav.dagpenger.datalaster.inntekt.inntektJsonAdapter
@@ -40,7 +41,11 @@ class DatalasterTopologyTest {
     }
 
     class DummyInntektApiClient : InntektApiClient {
-        override fun getInntekt(aktørId: String, vedtakId: Int, beregningsDato: LocalDate): Result<Inntekt, InntektApiHttpClientException> {
+        override fun getInntekt(
+            aktørId: String,
+            vedtakId: Int,
+            beregningsDato: LocalDate
+        ): Result<Inntekt, InntektApiHttpClientException> {
             return Result.of { Inntekt("12345", emptyList()) }
         }
     }
@@ -48,12 +53,7 @@ class DatalasterTopologyTest {
     @Test
     fun `Should add inntekt to packet`() {
         val datalaster = Datalaster(
-            Environment(
-                "user",
-                "pass",
-                "",
-                ""
-            ),
+            Configuration(),
             DummyInntektApiClient()
         )
 
@@ -77,7 +77,14 @@ class DatalasterTopologyTest {
 
             assertTrue { ut != null }
             assertTrue(ut.value().hasField("inntektV1"))
-            assertEquals("12345", ut.value().getObjectValue("inntektV1") { serialized -> checkNotNull(inntektJsonAdapter.fromJsonValue(serialized)) }.inntektsId)
+            assertEquals(
+                "12345",
+                ut.value().getObjectValue("inntektV1") { serialized ->
+                    checkNotNull(
+                        inntektJsonAdapter.fromJsonValue(serialized)
+                    )
+                }.inntektsId
+            )
             assertEquals("12345", ut.value().getStringValue("aktørId"))
             assertEquals(123, ut.value().getIntValue("vedtakId"))
             assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
@@ -88,12 +95,7 @@ class DatalasterTopologyTest {
     @Test
     fun `Should ignore packet with inntekt `() {
         val datalaster = Datalaster(
-            Environment(
-                "user",
-                "pass",
-                "",
-                ""
-            ),
+            Configuration(),
             DummyInntektApiClient()
         )
 
@@ -122,12 +124,7 @@ class DatalasterTopologyTest {
     @Test
     fun `Should ignore packet with manuelt grunnlag `() {
         val datalaster = Datalaster(
-            Environment(
-                "user",
-                "pass",
-                "",
-                ""
-            ),
+            Configuration(),
             DummyInntektApiClient()
         )
 
@@ -156,16 +153,15 @@ class DatalasterTopologyTest {
     @Test
     fun `Should add problem to packet if error when fetching inntekt occurs `() {
         val mockInntektApiClient: InntektApiClient = mockk()
-        every { mockInntektApiClient.getInntekt(any(), any(), any()) } returns Result.error(InntektApiHttpClientException("",
-            Problem(title = "failed")))
+        every { mockInntektApiClient.getInntekt(any(), any(), any()) } returns Result.error(
+            InntektApiHttpClientException(
+                "",
+                Problem(title = "failed")
+            )
+        )
 
         val datalaster = Datalaster(
-            Environment(
-                "user",
-                "pass",
-                "",
-                ""
-            ),
+            Configuration(),
             mockInntektApiClient
         )
 
@@ -196,12 +192,7 @@ class DatalasterTopologyTest {
         val mockInntektApiClient: InntektApiClient = mockk()
 
         val datalaster = Datalaster(
-            Environment(
-                "user",
-                "pass",
-                "",
-                ""
-            ),
+            Configuration(),
             mockInntektApiClient
         )
 

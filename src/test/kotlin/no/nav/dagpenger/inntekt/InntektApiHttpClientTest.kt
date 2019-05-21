@@ -3,7 +3,9 @@ package no.nav.dagpenger.inntekt
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.junit.WireMockRule
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClient
+import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
@@ -23,7 +25,7 @@ class InntektApiHttpClientTest {
 
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v1/inntekt"))
-                // .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -32,7 +34,8 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url("")
+            wireMockRule.url(""),
+            "api-key"
         )
 
         val inntektResponse =
@@ -60,7 +63,7 @@ class InntektApiHttpClientTest {
         """.trimIndent()
         WireMock.stubFor(
             WireMock.post(WireMock.urlEqualTo("/v1/inntekt"))
-                // .withHeader("Authorization", RegexPattern("Bearer\\s[\\d|a-f]{8}-([\\d|a-f]{4}-){3}[\\d|a-f]{12}"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .willReturn(
                     WireMock.serverError()
                         .withHeader("Content-Type", "application/json")
@@ -69,7 +72,8 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url("")
+            wireMockRule.url(""),
+            "api-key"
         )
 
         val inntektResponse =
@@ -98,7 +102,8 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url("")
+            wireMockRule.url(""),
+            "api-"
         )
 
         val inntektResponse =
