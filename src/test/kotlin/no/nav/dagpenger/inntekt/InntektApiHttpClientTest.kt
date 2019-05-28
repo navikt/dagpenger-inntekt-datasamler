@@ -9,6 +9,7 @@ import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
+import java.time.YearMonth
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -47,6 +48,7 @@ class InntektApiHttpClientTest {
             )
 
         assertEquals("12345", inntektResponse.inntektsId)
+        assertEquals(YearMonth.of(2017, 9), inntektResponse.sisteAvsluttendeKalenderMåned)
     }
 
     @Test
