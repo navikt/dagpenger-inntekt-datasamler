@@ -1,6 +1,5 @@
 package no.nav.dagpenger.inntekt
 
-import com.github.kittinunf.result.Result
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.dagpenger.datalaster.inntekt.Configuration
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.net.URI
 import java.time.LocalDate
 import java.util.Properties
 
@@ -45,8 +45,8 @@ class DatalasterTopologyTest {
             aktørId: String,
             vedtakId: Int,
             beregningsDato: LocalDate
-        ): Result<Inntekt, InntektApiHttpClientException> {
-            return Result.of { Inntekt("12345", emptyList()) }
+        ): Inntekt {
+            return Inntekt("12345", emptyList())
         }
     }
 
@@ -153,12 +153,9 @@ class DatalasterTopologyTest {
     @Test
     fun `Should add problem to packet if error when fetching inntekt occurs `() {
         val mockInntektApiClient: InntektApiClient = mockk()
-        every { mockInntektApiClient.getInntekt(any(), any(), any()) } returns Result.error(
-            InntektApiHttpClientException(
-                "",
-                Problem(title = "failed")
-            )
-        )
+        every {
+            mockInntektApiClient.getInntekt(any(), any(), any())
+        } throws InntektApiHttpClientException("", Problem(title = "failed"))
 
         val datalaster = Datalaster(
             Configuration(),
@@ -221,6 +218,35 @@ class DatalasterTopologyTest {
             )
 
             assertNull(ut)
+        }
+    }
+
+    @Test
+    fun `Should add problem on unexpected failure`() {
+
+        val datalaster = Datalaster(
+            Configuration(),
+            DummyInntektApiClient()
+        )
+
+        val packet = Packet()
+
+        packet.putValue("aktørId", "123")
+        packet.putValue("vedtakId", 123)
+        packet.putValue("beregningsDato", "ERROR")
+
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(packet)
+            topologyTestDriver.pipeInput(inputRecord)
+
+            val ut = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            assert(ut.value().hasProblem())
+            assertEquals(URI("urn:dp:error:datalaster"), ut.value().getProblem()!!.type)
         }
     }
 }
