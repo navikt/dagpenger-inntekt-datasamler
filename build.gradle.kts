@@ -23,6 +23,7 @@ repositories {
     maven("http://packages.confluent.io/maven/")
     maven("https://dl.bintray.com/kittinunf/maven")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven("https://jitpack.io")
 }
 
 java {
@@ -43,23 +44,23 @@ val jupiterVersion = "5.3.2"
 val confluentVersion = "5.0.2"
 val prometheusVersion = "0.6.0"
 val orgJsonVersion = "20180813"
-val ktorVersion = "1.0.0"
+val ktorVersion = "1.2.0"
 val fuelVersion = "2.0.1"
 val moshiVersion = "1.8.0"
 val ktorMoshiVersion = "1.0.1"
 val mockkVersion = "1.9.1"
+val konfigVersion = "1.6.10.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 
-    implementation("no.nav.dagpenger:streams:0.3.6-SNAPSHOT")
-    implementation("no.nav.dagpenger:events:0.3.11-SNAPSHOT")
+    implementation("com.github.navikt:dagpenger-streams:2019.05.21-14.30.a7af5e9d49fe")
+    implementation("com.github.navikt:dagpenger-events:2019.05.20-11.56.33cd4c73a439")
+    implementation("com.github.navikt.dp-biblioteker:ktor-utils:2019.05.21-09.57.669ffe8e266f")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
-    api("io.confluent:kafka-streams-avro-serde:$confluentVersion")
-
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_log4j2:$prometheusVersion")
@@ -69,6 +70,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
     implementation("com.squareup.moshi:moshi:$moshiVersion")
     implementation("com.ryanharter.ktor:ktor-moshi:$ktorMoshiVersion")
+
+    implementation("com.natpryce:konfig:$konfigVersion")
 
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
     implementation("com.github.kittinunf.fuel:fuel-moshi:$fuelVersion")
@@ -97,11 +100,11 @@ application {
 
 spotless {
     kotlin {
-        ktlint()
+        ktlint("0.31.0")
     }
     kotlinGradle {
         target("*.gradle.kts", "additionalScripts/*.gradle.kts")
-        ktlint()
+        ktlint("0.31.0")
     }
 }
 
