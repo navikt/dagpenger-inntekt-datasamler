@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.dagpenger.datalaster.inntekt.Configuration
 import no.nav.dagpenger.datalaster.inntekt.Datalaster
-
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
 import no.nav.dagpenger.datalaster.inntekt.inntektJsonAdapter
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.Properties
 
 class DatalasterTopologyTest {
@@ -45,16 +45,14 @@ class DatalasterTopologyTest {
             aktørId: String,
             vedtakId: Int,
             beregningsDato: LocalDate
-        ): Inntekt {
-            return Inntekt("12345", emptyList())
-        }
+        ) = Inntekt("12345", emptyList(), sisteAvsluttendeKalenderMåned = YearMonth.now())
     }
 
     @Test
     fun `Should add inntekt to packet`() {
         val datalaster = Datalaster(
             Configuration(),
-            DummyInntektApiClient()
+            DatalasterTopologyTest.DummyInntektApiClient()
         )
 
         val packetJson = """
@@ -96,7 +94,7 @@ class DatalasterTopologyTest {
     fun `Should ignore packet with inntekt `() {
         val datalaster = Datalaster(
             Configuration(),
-            DummyInntektApiClient()
+            DatalasterTopologyTest.DummyInntektApiClient()
         )
 
         val packetJson = """
@@ -125,7 +123,8 @@ class DatalasterTopologyTest {
     fun `Should ignore packet with manuelt grunnlag `() {
         val datalaster = Datalaster(
             Configuration(),
-            DummyInntektApiClient()
+
+            DatalasterTopologyTest.DummyInntektApiClient()
         )
 
         val packetJson = """
@@ -226,7 +225,7 @@ class DatalasterTopologyTest {
 
         val datalaster = Datalaster(
             Configuration(),
-            DummyInntektApiClient()
+            DatalasterTopologyTest.DummyInntektApiClient()
         )
 
         val packet = Packet()

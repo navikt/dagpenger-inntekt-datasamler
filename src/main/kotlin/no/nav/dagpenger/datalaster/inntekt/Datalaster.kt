@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager
 import java.net.URI
 import java.util.Properties
 
-class Datalaster(val config: Configuration, val inntektApiHttpClient: InntektApiClient) : River() {
+class Datalaster(private val config: Configuration, private val inntektApiHttpClient: InntektApiClient) : River() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = config.application.httpPort ?: super.HTTP_PORT
 
