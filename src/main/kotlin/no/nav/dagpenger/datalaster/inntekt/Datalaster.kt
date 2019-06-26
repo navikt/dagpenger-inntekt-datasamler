@@ -1,5 +1,6 @@
 package no.nav.dagpenger.datalaster.inntekt
 
+import mu.KotlinLogging
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
@@ -7,15 +8,14 @@ import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
-import org.apache.logging.log4j.LogManager
 import java.net.URI
 import java.util.Properties
+
+private val LOGGER = KotlinLogging.logger {}
 
 class Datalaster(private val config: Configuration, private val inntektApiHttpClient: InntektApiClient) : River() {
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = config.application.httpPort ?: super.HTTP_PORT
-
-    private val logger = LogManager.getLogger()
 
     companion object {
         const val INNTEKT = "inntektV1"
@@ -45,7 +45,7 @@ class Datalaster(private val config: Configuration, private val inntektApiHttpCl
 
     override fun onFailure(packet: Packet, error: Throwable?): Packet {
         if (error is InntektApiHttpClientException) {
-            logger.error("Failed to add inntekt", error)
+            LOGGER.error("Failed to add inntekt", error)
             packet.addProblem(error.problem)
         } else {
             packet.addProblem(

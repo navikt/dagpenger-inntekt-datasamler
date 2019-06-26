@@ -48,7 +48,7 @@ val ktorVersion = "1.2.0"
 val fuelVersion = "2.0.1"
 val moshiVersion = "1.8.0"
 val ktorMoshiVersion = "1.0.1"
-val mockkVersion = "1.9.1"
+val mockkVersion = "1.9.3"
 val konfigVersion = "1.6.10.0"
 
 dependencies {
