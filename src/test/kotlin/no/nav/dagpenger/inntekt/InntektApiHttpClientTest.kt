@@ -1,13 +1,17 @@
 package no.nav.dagpenger.inntekt
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.junit.WireMockRule
+
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClient
 import no.nav.dagpenger.datalaster.inntekt.InntektApiHttpClientException
-import org.junit.Rule
-import org.junit.Test
+
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.test.assertEquals
@@ -15,9 +19,26 @@ import kotlin.test.assertFailsWith
 
 class InntektApiHttpClientTest {
 
-    @Rule
-    @JvmField
-    var wireMockRule = WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort())
+    companion object {
+        val server: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+
+        @BeforeAll
+        @JvmStatic
+        fun start() {
+            server.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun stop() {
+            server.stop()
+        }
+    }
+
+    @BeforeEach
+    fun configure() {
+        WireMock.configureFor(server.port())
+    }
 
     @Test
     fun `fetch klassifisert inntekt on 200 ok`() {
@@ -36,7 +57,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
+            server.url(""),
             "api-key"
         )
 
@@ -75,7 +96,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
+            server.url(""),
             "api-key"
         )
 
@@ -106,7 +127,7 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(
-            wireMockRule.url(""),
+            server.url(""),
             "api-"
         )
 

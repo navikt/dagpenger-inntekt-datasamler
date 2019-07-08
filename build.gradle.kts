@@ -3,26 +3,24 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     application
-    kotlin("jvm") version "1.3.21"
-    id("com.diffplug.gradle.spotless") version "3.13.0"
-    id("com.github.johnrengelman.shadow") version "4.0.3"
+    kotlin("jvm") version Kotlin.version
+    id(Spotless.spotless) version Spotless.version
+    id(Shadow.shadow) version Shadow.version
 }
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 }
 
 apply {
-    plugin("com.diffplug.gradle.spotless")
+    plugin(Spotless.spotless)
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
     maven("http://packages.confluent.io/maven/")
-    maven("https://dl.bintray.com/kittinunf/maven")
-    maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://jitpack.io")
 }
 
@@ -37,74 +35,64 @@ val jar by tasks.getting(Jar::class) {
     }
 }
 
-val kafkaVersion = "2.0.1"
-val kotlinLoggingVersion = "1.6.22"
-val log4j2Version = "2.11.1"
-val jupiterVersion = "5.3.2"
-val confluentVersion = "5.0.2"
-val prometheusVersion = "0.6.0"
 val orgJsonVersion = "20180813"
-val ktorVersion = "1.2.0"
-val fuelVersion = "2.0.1"
-val moshiVersion = "1.8.0"
-val ktorMoshiVersion = "1.0.1"
-val mockkVersion = "1.9.3"
-val konfigVersion = "1.6.10.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+    implementation(Kotlin.Logging.kotlinLogging)
 
-    implementation("com.github.navikt:dagpenger-streams:2019.06.21-11.13.27b0917e56b9")
-    implementation("com.github.navikt:dagpenger-events:2019.06.12-14.01.4b1e1a663635")
-    implementation("com.github.navikt.dp-biblioteker:ktor-utils:2019.05.21-09.57.669ffe8e266f")
+    implementation(Dagpenger.Streams)
+    implementation(Dagpenger.Events)
+    implementation(Dagpenger.Biblioteker.ktorUtils)
 
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
-    implementation("io.prometheus:simpleclient_common:$prometheusVersion")
-    implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
-    implementation("io.prometheus:simpleclient_log4j2:$prometheusVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation(Kafka.clients)
+    implementation(Kafka.streams)
+    implementation(Prometheus.common)
+    implementation(Prometheus.hotspot)
+    implementation(Prometheus.log4j2)
 
-    implementation("com.squareup.moshi:moshi-adapters:$moshiVersion")
-    implementation("com.squareup.moshi:moshi-kotlin:$moshiVersion")
-    implementation("com.squareup.moshi:moshi:$moshiVersion")
-    implementation("com.ryanharter.ktor:ktor-moshi:$ktorMoshiVersion")
+    implementation(Ktor.serverNetty)
 
-    implementation("com.natpryce:konfig:$konfigVersion")
+    implementation(Moshi.moshi)
+    implementation(Moshi.moshiAdapters)
+    implementation(Moshi.moshiKotlin)
+    implementation(Moshi.moshiKtor)
 
-    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
-    implementation("com.github.kittinunf.fuel:fuel-moshi:$fuelVersion")
+    implementation(Konfig.konfig)
 
-    implementation("org.apache.logging.log4j:log4j-api:$log4j2Version")
-    implementation("org.apache.logging.log4j:log4j-core:$log4j2Version")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
-    implementation("com.vlkan.log4j2:log4j2-logstash-layout-fatjar:0.15")
-    implementation("org.json:json:$orgJsonVersion")
+    implementation(Fuel.fuel)
+    implementation(Fuel.fuelMoshi)
+
+    implementation(Log4j2.api)
+    implementation(Log4j2.core)
+    implementation(Log4j2.slf4j)
+    implementation(Log4j2.Logstash.logstashLayout)
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jupiterVersion")
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaVersion")
-    testImplementation("no.nav:kafka-embedded-env:2.0.2")
-    testImplementation("com.github.tomakehurst:wiremock:2.19.0")
-    testImplementation("junit:junit:4.12")
-    testImplementation("io.mockk:mockk:$mockkVersion")
+
+    testImplementation(Junit5.api)
+    testRuntimeOnly(Junit5.engine)
+    testRuntimeOnly(Junit5.vintageEngine)
+    
+    testImplementation(Kafka.streamTestUtils)
+    testImplementation(KafkaEmbedded.env)
+    testImplementation(Wiremock.standalone)
+    testImplementation(Mockk.mockk)
 }
 
 application {
     applicationName = "dp-datalaster-inntekt"
+
     mainClassName = "no.nav.dagpenger.datalaster.inntekt.DatalasterKt"
 }
 
 spotless {
     kotlin {
-        ktlint("0.31.0")
+        ktlint(Klint.version)
     }
     kotlinGradle {
         target("*.gradle.kts", "additionalScripts/*.gradle.kts")
-        ktlint("0.31.0")
+        ktlint(Klint.version)
     }
 }
 
