@@ -5,7 +5,7 @@ metadata:
 spec:
   env:
     - name:  KAFKA_BOOTSTRAP_SERVERS
-      value: "d26apvl00159.test.local:8443,d26apvl00160.test.local:8443,d26apvl00161.test.local:8443"
+      value: "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
     - name:  DP_INNTEKT_API_URL
       value: "http://dp-inntekt-api/"
     - name: OIDC_STS_ISSUERURL
