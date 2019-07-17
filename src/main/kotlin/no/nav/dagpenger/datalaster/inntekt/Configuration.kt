@@ -23,7 +23,7 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "DEV",
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
-        "kafka.bootstrap.servers" to "d26apvl00159.test.local:8443,d26apvl00160.test.local:8443,d26apvl00161.test.local:8443"
+        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
 
     )
 )
