@@ -20,6 +20,7 @@ import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.TopologyTestDriver
 import org.apache.kafka.streams.test.ConsumerRecordFactory
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -113,7 +114,7 @@ class DatalasterTopologyTest {
     }
 
     @Test
-    fun `Should add problem to packet if error when fetching spesifisert inntekt occurs `() {
+    fun `Should not add problem to packet if error when fetching spesifisert inntekt occurs `() {
         val spesifisertInntektHttpClientMock: SpesifisertInntektHttpClient = mockk()
 
         every {
@@ -144,7 +145,7 @@ class DatalasterTopologyTest {
             )
 
             assertNotNull(ut)
-            assertTrue { ut.value().hasProblem() }
+            assertFalse { ut.value().hasProblem() }
         }
     }
 

@@ -44,8 +44,13 @@ class Datalaster(
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
 
-        val spesifisertInntekt = spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
-        packet.putValue(SPESIFISERT_INNTEKT, spesifisertInntektJsonAdapter.toJsonValue(spesifisertInntekt)!!)
+        try {
+            val spesifisertInntekt =
+                spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
+            packet.putValue(SPESIFISERT_INNTEKT, spesifisertInntektJsonAdapter.toJsonValue(spesifisertInntekt)!!)
+        } catch (e: Exception) {
+            LOGGER.warn("Could not add spesifisert inntekt", e)
+        }
 
         val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
         packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
