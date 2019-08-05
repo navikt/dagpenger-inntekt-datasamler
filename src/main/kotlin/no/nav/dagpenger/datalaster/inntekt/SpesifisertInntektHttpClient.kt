@@ -4,28 +4,25 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
 import no.nav.dagpenger.events.Problem
-import no.nav.dagpenger.events.inntekt.v1.Inntekt
+import no.nav.dagpenger.events.inntekt.v1.SpesifisertInntekt
 import no.nav.dagpenger.events.moshiInstance
 import java.net.URI
 import java.time.LocalDate
 
-class InntektApiHttpClient(
-    private val inntektApiUrl: String,
-    private val apiKey: String
-) : InntektApiClient {
+class SpesifisertInntektHttpClient(private val inntektApiUrl: String, private val apiKey: String) {
 
-    private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
+    private val jsonRequestRequestAdapter = moshiInstance.adapter(SpesifisertInntektRequest::class.java)
     private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
 
-    override fun getInntekt(
+    fun getSpesifisertInntekt(
         aktørId: String,
         vedtakId: Int,
         beregningsDato: LocalDate
-    ): Inntekt {
+    ): SpesifisertInntekt {
 
-        val url = "${inntektApiUrl}v1/inntekt"
+        val url = "${inntektApiUrl}v1/inntekt/spesifisert"
 
-        val requestBody = InntektRequest(
+        val requestBody = SpesifisertInntektRequest(
             aktørId,
             vedtakId,
             beregningsDato
@@ -36,7 +33,7 @@ class InntektApiHttpClient(
             header("Content-Type" to "application/json")
             header("X-API-KEY", apiKey)
             body(jsonBody)
-            responseObject(moshiDeserializerOf(inntektJsonAdapter))
+            responseObject(moshiDeserializerOf(spesifisertInntektJsonAdapter))
         }
 
         return if (result is Result.Failure) {
@@ -58,7 +55,7 @@ class InntektApiHttpClient(
     }
 }
 
-data class InntektRequest(
+private data class SpesifisertInntektRequest(
     val aktørId: String,
     val vedtakId: Int,
     val beregningsDato: LocalDate

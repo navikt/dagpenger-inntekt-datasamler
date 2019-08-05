@@ -13,12 +13,18 @@ import java.util.Properties
 
 private val LOGGER = KotlinLogging.logger {}
 
-class Datalaster(private val config: Configuration, private val inntektApiHttpClient: InntektApiClient) : River() {
+class Datalaster(
+    private val config: Configuration,
+    private val inntektApiHttpClient: InntektApiClient,
+    private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient
+) : River() {
+
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = config.application.httpPort ?: super.HTTP_PORT
 
     companion object {
         const val INNTEKT = "inntektV1"
+        const val SPESIFISERT_INNTEKT = "spesifisertInntektV1"
         const val AKTØRID = "aktørId"
         const val VEDTAKID = "vedtakId"
         const val BEREGNINGSDATO = "beregningsDato"
@@ -28,6 +34,7 @@ class Datalaster(private val config: Configuration, private val inntektApiHttpCl
     override fun filterPredicates(): List<Predicate<String, Packet>> {
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
+            Predicate { _, packet -> !packet.hasField(SPESIFISERT_INNTEKT) },
             Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
         )
     }
@@ -36,6 +43,9 @@ class Datalaster(private val config: Configuration, private val inntektApiHttpCl
         val aktørId = packet.getStringValue(AKTØRID)
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+
+        val spesifisertInntekt = spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
+        packet.putValue(SPESIFISERT_INNTEKT, spesifisertInntektJsonAdapter.toJsonValue(spesifisertInntekt)!!)
 
         val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
         packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
@@ -76,6 +86,10 @@ fun main(args: Array<String>) {
         config.application.inntektApiUrl,
         apiKey
     )
-    val datalaster = Datalaster(config, inntektApiHttpClient)
+    val spesifisertInntektHttpClient = SpesifisertInntektHttpClient(
+        config.application.inntektApiUrl,
+        apiKey
+    )
+    val datalaster = Datalaster(config, inntektApiHttpClient, spesifisertInntektHttpClient)
     datalaster.start()
 }

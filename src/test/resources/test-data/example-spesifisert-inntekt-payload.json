@@ -1,0 +1,118 @@
+{
+  "inntektId": {
+    "id": "01D8G6FS9QGRT3JKBTA5KEE64C"
+  },
+  "avvik": [],
+  "posteringer": [
+    {
+      "posteringsMåned": "2019-01",
+      "beløp": "250000",
+      "fordel": "kontantytelse",
+      "inntektskilde": "A-ordningen",
+      "inntektsstatus": "LoependeInnrapportert",
+      "inntektsperiodetype": "Maaned",
+      "leveringstidspunkt": "2019-02",
+      "utbetaltIMåned": "2018-03",
+      "opplysningspliktig": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "virksomhet": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "inntektsmottaker": {
+        "aktørType": "NATURLIG_IDENT",
+        "identifikator": "99999999999"
+      },
+      "inngårIGrunnlagForTrekk": true,
+      "utløserArbeidsgiveravgift": true,
+      "informasjonsstatus": "InngaarAlltid",
+      "posteringsType": "L_FASTLØNN"
+    },
+    {
+      "posteringsMåned": "2018-03",
+      "beløp": "250000",
+      "fordel": "kontantytelse",
+      "inntektskilde": "A-ordningen",
+      "inntektsstatus": "LoependeInnrapportert",
+      "inntektsperiodetype": "Maaned",
+      "leveringstidspunkt": "2019-02",
+      "utbetaltIMåned": "2018-03",
+      "opplysningspliktig": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "virksomhet": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "inntektsmottaker": {
+        "aktørType": "NATURLIG_IDENT",
+        "identifikator": "99999999999"
+      },
+      "inngårIGrunnlagForTrekk": true,
+      "utløserArbeidsgiveravgift": true,
+      "informasjonsstatus": "InngaarAlltid",
+      "posteringsType": "L_FASTLØNN"
+    },
+    {
+      "posteringsMåned": "2017-04",
+      "beløp": "250000",
+      "fordel": "kontantytelse",
+      "inntektskilde": "A-ordningen",
+      "inntektsstatus": "LoependeInnrapportert",
+      "inntektsperiodetype": "Maaned",
+      "leveringstidspunkt": "2019-02",
+      "utbetaltIMåned": "2018-03",
+      "opplysningspliktig": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "virksomhet": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "inntektsmottaker": {
+        "aktørType": "NATURLIG_IDENT",
+        "identifikator": "99999999999"
+      },
+      "inngårIGrunnlagForTrekk": true,
+      "utløserArbeidsgiveravgift": true,
+      "informasjonsstatus": "InngaarAlltid",
+      "posteringsType": "L_FASTLØNN"
+    },
+    {
+      "posteringsMåned": "2017-12",
+      "beløp": "250000",
+      "fordel": "kontantytelse",
+      "inntektskilde": "A-ordningen",
+      "inntektsstatus": "LoependeInnrapportert",
+      "inntektsperiodetype": "Maaned",
+      "leveringstidspunkt": "2019-02",
+      "utbetaltIMåned": "2018-03",
+      "opplysningspliktig": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "virksomhet": {
+        "aktørType": "ORGANISASJON",
+        "identifikator": "1111111"
+      },
+      "inntektsmottaker": {
+        "aktørType": "NATURLIG_IDENT",
+        "identifikator": "99999999999"
+      },
+      "inngårIGrunnlagForTrekk": true,
+      "utløserArbeidsgiveravgift": true,
+      "informasjonsstatus": "InngaarAlltid",
+      "posteringsType": "L_FASTLØNN"
+    }
+  ],
+  "ident": {
+    "aktørType": "NATURLIG_IDENT",
+    "identifikator": "-1"
+  },
+  "manueltRedigert": false,
+  "timestamp": "2019-08-01T07:37:32.813584"
+}
