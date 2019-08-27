@@ -29,6 +29,7 @@ class Datalaster(
         const val VEDTAKID = "vedtakId"
         const val BEREGNINGSDATO = "beregningsDato"
         const val MANUELT_GRUNNLAG = "manueltGrunnlag"
+        const val INNTEKTS_ID = "inntektsId"
     }
 
     override fun filterPredicates(): List<Predicate<String, Packet>> {
@@ -43,6 +44,7 @@ class Datalaster(
         val aktørId = packet.getStringValue(AKTØRID)
         val vedtakId = packet.getIntValue(VEDTAKID)
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
+        val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
 
         try {
             val spesifisertInntekt =
@@ -52,7 +54,11 @@ class Datalaster(
             LOGGER.warn("Could not add spesifisert inntekt", e)
         }
 
-        val inntekt = inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        val inntekt = when (inntektsId) {
+            is String -> inntektApiHttpClient.getInntektById(inntektsId)
+            else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+        }
+
         packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
 
         return packet

@@ -52,7 +52,19 @@ class DatalasterTopologyTest {
             aktørId: String,
             vedtakId: Int,
             beregningsDato: LocalDate
-        ) = Inntekt("12345", emptyList(), sisteAvsluttendeKalenderMåned = YearMonth.now())
+        ) = Inntekt(
+            inntektsId = "12345",
+            inntektsListe = emptyList(),
+            sisteAvsluttendeKalenderMåned = YearMonth.now()
+        )
+
+        override fun getInntektById(
+            inntektsId: String
+        ) = Inntekt(
+            inntektsId = inntektsId,
+            inntektsListe = emptyList(),
+            sisteAvsluttendeKalenderMåned = YearMonth.now()
+        )
     }
 
     private val emptySpesifisertInntekt = SpesifisertInntekt(
@@ -218,6 +230,51 @@ class DatalasterTopologyTest {
             assertEquals("12345", ut.value().getStringValue("aktørId"))
             assertEquals(123, ut.value().getIntValue("vedtakId"))
             assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
+            assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
+        }
+    }
+
+    @Test
+    fun `Should add klassifisert inntekt by inntektsId to packet`() {
+        val datalaster = Datalaster(
+            Configuration(),
+            DatalasterTopologyTest.DummyInntektApiClient(),
+            mockk(relaxed = true)
+        )
+
+        val packetJson = """
+            {
+                "aktørId": "12345",
+                "vedtakId": 123,
+                "beregningsDato": 2019-01-25,
+                "inntektsId": "ULID",
+                "otherField": "should be unchanged"
+            }
+        """.trimIndent()
+
+        TopologyTestDriver(datalaster.buildTopology(), config).use { topologyTestDriver ->
+            val inputRecord = factory.create(Packet(packetJson))
+            topologyTestDriver.pipeInput(inputRecord)
+            val ut = topologyTestDriver.readOutput(
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.name,
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.keySerde.deserializer(),
+                Topics.DAGPENGER_BEHOV_PACKET_EVENT.valueSerde.deserializer()
+            )
+
+            assertTrue { ut != null }
+            assertTrue(ut.value().hasField("inntektV1"))
+            assertEquals(
+                "ULID",
+                ut.value().getObjectValue("inntektV1") { serialized ->
+                    checkNotNull(
+                        inntektJsonAdapter.fromJsonValue(serialized)
+                    )
+                }.inntektsId
+            )
+            assertEquals("12345", ut.value().getStringValue("aktørId"))
+            assertEquals(123, ut.value().getIntValue("vedtakId"))
+            assertEquals(LocalDate.of(2019, 1, 25), ut.value().getLocalDate("beregningsDato"))
+            assertEquals("ULID", ut.value().getStringValue("inntektsId"))
             assertEquals("should be unchanged", ut.value().getStringValue("otherField"))
         }
     }

@@ -73,6 +73,30 @@ class InntektApiHttpClientTest {
     }
 
     @Test
+    fun `fetch klassifisert inntekt by ID on 200 ok`() {
+        val inntektsId = "ULID"
+
+        val responseBodyJson = InntektApiHttpClientTest::class.java
+            .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
+
+        WireMock.stubFor(
+            WireMock.get(WireMock.urlEqualTo("/v1/inntekt/$inntektsId"))
+                .withHeader("X-API-KEY", EqualToPattern("api-key"))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBodyJson)
+                )
+        )
+
+        val inntektApiClient = InntektApiHttpClient(server.url(""), "api-key")
+        val inntektResponse = inntektApiClient.getInntektById(inntektsId = inntektsId)
+
+        assertEquals("12345", inntektResponse.inntektsId)
+        assertEquals(YearMonth.of(2017, 9), inntektResponse.sisteAvsluttendeKalenderMåned)
+    }
+
+    @Test
     fun `fetch inntekt on 500 server error`() {
 
         val responseBodyJson = """
