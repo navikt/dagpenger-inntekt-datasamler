@@ -1,6 +1,5 @@
 package no.nav.dagpenger.datalaster.inntekt
 
-import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
@@ -16,6 +15,7 @@ class InntektApiHttpClient(
 ) : InntektApiClient {
 
     private val jsonRequestRequestAdapter = moshiInstance.adapter(InntektRequest::class.java)
+    private val jsonRequestByIdAdapter = moshiInstance.adapter(InntektByIdRequest::class.java)
     private val problemAdapter = moshiInstance.adapter(Problem::class.java)!!
 
     override fun getInntekt(
@@ -59,13 +59,22 @@ class InntektApiHttpClient(
     }
 
     override fun getInntektById(
-        inntektsId: String
+        inntektsId: String,
+        aktørId: String,
+        beregningsDato: LocalDate
     ): Inntekt {
         val url = "${inntektApiUrl}v1/inntekt/$inntektsId"
 
-        val (_, response, result) = with(url.httpGet()) {
+        val requestBody = InntektByIdRequest(
+            aktørId = aktørId,
+            beregningsDato = beregningsDato
+        )
+        val jsonBody = jsonRequestByIdAdapter.toJson(requestBody)
+
+        val (_, response, result) = with(url.httpPost()) {
             header("Content-Type" to "application/json")
             header("X-API-KEY", apiKey)
+            body(jsonBody)
             responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
 
@@ -91,6 +100,11 @@ class InntektApiHttpClient(
 data class InntektRequest(
     val aktørId: String,
     val vedtakId: Int,
+    val beregningsDato: LocalDate
+)
+
+data class InntektByIdRequest(
+    val aktørId: String,
     val beregningsDato: LocalDate
 )
 

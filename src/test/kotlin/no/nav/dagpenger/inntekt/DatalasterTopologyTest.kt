@@ -59,7 +59,9 @@ class DatalasterTopologyTest {
         )
 
         override fun getInntektById(
-            inntektsId: String
+            inntektsId: String,
+            aktørId: String,
+            beregningsDato: LocalDate
         ) = Inntekt(
             inntektsId = inntektsId,
             inntektsListe = emptyList(),

@@ -55,7 +55,11 @@ class Datalaster(
         }
 
         val inntekt = when (inntektsId) {
-            is String -> inntektApiHttpClient.getInntektById(inntektsId)
+            is String -> inntektApiHttpClient.getInntektById(
+                inntektsId = inntektsId,
+                aktørId = aktørId,
+                beregningsDato = beregningsDato
+            )
             else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
         }
 

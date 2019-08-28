@@ -80,7 +80,7 @@ class InntektApiHttpClientTest {
             .getResource("/test-data/example-klassifisert-inntekt-payload.json").readText()
 
         WireMock.stubFor(
-            WireMock.get(WireMock.urlEqualTo("/v1/inntekt/$inntektsId"))
+            WireMock.post(WireMock.urlEqualTo("/v1/inntekt/$inntektsId"))
                 .withHeader("X-API-KEY", EqualToPattern("api-key"))
                 .willReturn(
                     WireMock.aResponse()
@@ -90,7 +90,8 @@ class InntektApiHttpClientTest {
         )
 
         val inntektApiClient = InntektApiHttpClient(server.url(""), "api-key")
-        val inntektResponse = inntektApiClient.getInntektById(inntektsId = inntektsId)
+        val inntektResponse =
+            inntektApiClient.getInntektById(inntektsId = inntektsId, aktørId = "", beregningsDato = LocalDate.now())
 
         assertEquals("12345", inntektResponse.inntektsId)
         assertEquals(YearMonth.of(2017, 9), inntektResponse.sisteAvsluttendeKalenderMåned)
