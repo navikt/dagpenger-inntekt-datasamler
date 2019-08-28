@@ -61,7 +61,7 @@ class InntektApiHttpClient(
     override fun getInntektById(
         inntektsId: String
     ): Inntekt {
-        val url = "${inntektApiUrl}v1/inntekt/${inntektsId}"
+        val url = "${inntektApiUrl}v1/inntekt/$inntektsId"
 
         val (_, response, result) = with(url.httpGet()) {
             header("Content-Type" to "application/json")
