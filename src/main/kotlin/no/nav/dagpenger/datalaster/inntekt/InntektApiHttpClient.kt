@@ -1,5 +1,6 @@
 package no.nav.dagpenger.datalaster.inntekt
 
+import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.moshi.moshiDeserializerOf
 import com.github.kittinunf.result.Result
@@ -36,6 +37,35 @@ class InntektApiHttpClient(
             header("Content-Type" to "application/json")
             header("X-API-KEY", apiKey)
             body(jsonBody)
+            responseObject(moshiDeserializerOf(inntektJsonAdapter))
+        }
+
+        return if (result is Result.Failure) {
+            val problem = runCatching {
+                problemAdapter.fromJson(response.body().asString("application/json"))!!
+            }.getOrDefault(
+                Problem(
+                    URI.create("urn:dp:error:inntektskomponenten"),
+                    "Klarte ikke å hente inntekt"
+                )
+            )
+            throw InntektApiHttpClientException(
+                "Failed to fetch inntekt. Response message ${response.responseMessage}",
+                problem
+            )
+        } else {
+            result.get()
+        }
+    }
+
+    override fun getInntektById(
+        inntektsId: String
+    ): Inntekt {
+        val url = "${inntektApiUrl}v1/inntekt/${inntektsId}"
+
+        val (_, response, result) = with(url.httpGet()) {
+            header("Content-Type" to "application/json")
+            header("X-API-KEY", apiKey)
             responseObject(moshiDeserializerOf(inntektJsonAdapter))
         }
 

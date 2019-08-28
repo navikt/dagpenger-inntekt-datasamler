@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 interface InntektApiClient {
     fun getInntekt(aktørId: String, vedtakId: Int, beregningsDato: LocalDate): Inntekt
+    fun getInntektById(inntektsId: String): Inntekt
 }
 
 class InntektApiHttpClientException(
