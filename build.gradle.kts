@@ -109,3 +109,7 @@ tasks.withType<Test> {
 tasks.withType<Wrapper> {
     gradleVersion = "5.5"
 }
+
+tasks.named("compileKotlin") {
+    dependsOn("spotlessCheck")
+}
