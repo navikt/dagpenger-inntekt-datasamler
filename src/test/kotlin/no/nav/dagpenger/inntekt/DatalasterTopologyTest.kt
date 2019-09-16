@@ -75,7 +75,8 @@ class DatalasterTopologyTest {
         posteringer = emptyList(),
         ident = Aktør(AktørType.AKTOER_ID, "111"),
         manueltRedigert = false,
-        timestamp = LocalDateTime.of(2019, 5, 3, 1, 1)
+        timestamp = LocalDateTime.of(2019, 5, 3, 1, 1),
+        sisteAvsluttendeKalenderMåned = YearMonth.of(2019, 6)
     )
 
     @Test
