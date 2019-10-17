@@ -48,7 +48,7 @@ data class Configuration(
         val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
         val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],
         val httpPort: Int? = 8094,
-        val cluster: String = System.getenv("NAIS_CLUSTER_NAME") ?: System.getProperty("NAIS_CLUSTER_NAME")
+        val cluster: String = System.getenv("NAIS_CLUSTER_NAME") ?: System.getProperty("NAIS_CLUSTER_NAME") ?: "LOCAL"
 
     )
 }

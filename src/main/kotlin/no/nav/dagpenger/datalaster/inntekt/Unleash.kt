@@ -15,7 +15,7 @@ fun setupUnleash(profile: Profile, cluster: String): DefaultUnleash {
     return DefaultUnleash(unleashconfig, ByClusterStrategy(cluster))
 }
 
-class ByClusterStrategy(private val cluster: String): Strategy {
+class ByClusterStrategy(private val cluster: String) : Strategy {
     override fun isEnabled(parameters: MutableMap<String, String>?): Boolean {
         if (parameters == null) {
             return false

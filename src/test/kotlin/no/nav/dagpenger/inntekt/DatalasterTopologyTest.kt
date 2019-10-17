@@ -2,6 +2,7 @@ package no.nav.dagpenger.inntekt
 
 import io.mockk.every
 import io.mockk.mockk
+import no.finn.unleash.FakeUnleash
 import no.nav.dagpenger.datalaster.inntekt.Configuration
 import no.nav.dagpenger.datalaster.inntekt.Datalaster
 import no.nav.dagpenger.datalaster.inntekt.InntektApiClient
@@ -90,7 +91,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DummyInntektApiClient(),
-            spesifisertInntektHttpClientMock
+            spesifisertInntektHttpClientMock,
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -139,7 +141,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DummyInntektApiClient(),
-            spesifisertInntektHttpClientMock
+            spesifisertInntektHttpClientMock,
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -169,7 +172,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DummyInntektApiClient(),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -199,7 +203,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DatalasterTopologyTest.DummyInntektApiClient(),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -242,7 +247,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DatalasterTopologyTest.DummyInntektApiClient(),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -292,7 +298,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             mockInntektApiClient,
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -322,7 +329,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DatalasterTopologyTest.DummyInntektApiClient(),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -352,7 +360,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DatalasterTopologyTest.DummyInntektApiClient(),
-            mockk()
+            mockk(),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -383,7 +392,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             mockk(),
-            mockk()
+            mockk(),
+            FakeUnleash()
         )
 
         val packetJson = """
@@ -420,7 +430,8 @@ class DatalasterTopologyTest {
         val datalaster = Datalaster(
             Configuration(),
             DatalasterTopologyTest.DummyInntektApiClient(),
-            mockk(relaxed = true)
+            mockk(relaxed = true),
+            FakeUnleash()
         )
 
         val packet = Packet()
