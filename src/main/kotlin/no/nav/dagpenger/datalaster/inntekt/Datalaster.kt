@@ -1,6 +1,7 @@
 package no.nav.dagpenger.datalaster.inntekt
 
 import mu.KotlinLogging
+import no.finn.unleash.Unleash
 import no.nav.dagpenger.events.Packet
 import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
@@ -16,7 +17,8 @@ private val LOGGER = KotlinLogging.logger {}
 class Datalaster(
     private val config: Configuration,
     private val inntektApiHttpClient: InntektApiClient,
-    private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient
+    private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient,
+    private val unleash: Unleash
 ) : River() {
 
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
@@ -54,16 +56,18 @@ class Datalaster(
             LOGGER.warn("Could not add spesifisert inntekt", e)
         }
 
-        val inntekt = when (inntektsId) {
-            is String -> inntektApiHttpClient.getInntektById(
-                inntektsId = inntektsId,
-                aktørId = aktørId,
-                beregningsDato = beregningsDato
-            )
-            else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-        }
+        if (!unleash.isEnabled("dagpenger.ny-klassifisering")) {
+            val inntekt = when (inntektsId) {
+                is String -> inntektApiHttpClient.getInntektById(
+                    inntektsId = inntektsId,
+                    aktørId = aktørId,
+                    beregningsDato = beregningsDato
+                )
+                else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
+            }
 
-        packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
+            packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
+        }
 
         return packet
     }
@@ -105,6 +109,9 @@ fun main(args: Array<String>) {
         config.application.inntektApiUrl,
         apiKey
     )
-    val datalaster = Datalaster(config, inntektApiHttpClient, spesifisertInntektHttpClient)
+
+    val unleash = setupUnleash(config.application.profile, config.application.cluster)
+
+    val datalaster = Datalaster(config, inntektApiHttpClient, spesifisertInntektHttpClient, unleash)
     datalaster.start()
 }
