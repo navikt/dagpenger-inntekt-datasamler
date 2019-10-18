@@ -110,7 +110,7 @@ fun main(args: Array<String>) {
         apiKey
     )
 
-    val unleash = setupUnleash(config.application.profile, config.application.cluster)
+    val unleash = setupUnleash(config.application.profile.toString())
 
     val datalaster = Datalaster(config, inntektApiHttpClient, spesifisertInntektHttpClient, unleash)
     datalaster.start()

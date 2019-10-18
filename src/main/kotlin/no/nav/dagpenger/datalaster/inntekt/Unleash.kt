@@ -4,28 +4,28 @@ import no.finn.unleash.DefaultUnleash
 import no.finn.unleash.strategy.Strategy
 import no.finn.unleash.util.UnleashConfig
 
-fun setupUnleash(profile: Profile, cluster: String): DefaultUnleash {
+fun setupUnleash(profile: String): DefaultUnleash {
     val appName = "dp-datalaster-inntekt"
     val unleashconfig = UnleashConfig.builder()
         .appName(appName)
-        .instanceId(appName + profile.toString())
+        .instanceId(appName + profile)
         .unleashAPI("http://unleash.nais.adeo.no/api/")
         .build()
 
-    return DefaultUnleash(unleashconfig, ByClusterStrategy(cluster))
+    return DefaultUnleash(unleashconfig, ByProfileStrategy(profile))
 }
 
-class ByClusterStrategy(private val cluster: String) : Strategy {
+class ByProfileStrategy(private val profile: String) : Strategy {
     override fun isEnabled(parameters: MutableMap<String, String>?): Boolean {
         if (parameters == null) {
             return false
         }
 
-        val clusterParameter = parameters["cluster"] ?: return false
+        val profileParameter = parameters["profile"] ?: return false
 
-        val allClusters = clusterParameter.split(",")
-        return allClusters.contains(cluster)
+        val allClusters = profileParameter.split(",")
+        return allClusters.contains(profile)
     }
 
-    override fun getName() = "byCluster"
+    override fun getName() = "byProfile"
 }
