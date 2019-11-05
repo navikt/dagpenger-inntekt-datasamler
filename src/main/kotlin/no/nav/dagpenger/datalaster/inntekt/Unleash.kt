@@ -9,7 +9,7 @@ fun setupUnleash(profile: String): DefaultUnleash {
     val unleashconfig = UnleashConfig.builder()
         .appName(appName)
         .instanceId(appName + profile)
-        .unleashAPI("http://unleash.nais.adeo.no/api/")
+        .unleashAPI("https://unleash.nais.adeo.no/api/")
         .build()
 
     return DefaultUnleash(unleashconfig, ByProfileStrategy(profile))
