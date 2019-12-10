@@ -69,6 +69,8 @@ dependencies {
     implementation(Log4j2.slf4j)
     implementation(Log4j2.Logstash.logstashLayout)
 
+    implementation("no.finn.unleash:unleash-client-java:3.2.9")
+
     testImplementation(kotlin("test"))
 
     testImplementation(Junit5.api)

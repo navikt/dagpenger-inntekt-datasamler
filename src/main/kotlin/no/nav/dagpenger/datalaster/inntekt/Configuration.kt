@@ -15,7 +15,8 @@ private val localProperties = ConfigurationMap(
         "dp.inntekt.api.url" to "http://localhost/",
         "kafka.bootstrap.servers" to "localhost:9092",
         "dp.inntekt.api.key" to "dp-datalaster-inntekt",
-        "dp.inntekt.api.secret" to "secret"
+        "dp.inntekt.api.secret" to "secret",
+        "unleash.url" to "http://localhost"
 
     )
 )
@@ -23,7 +24,8 @@ private val devProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "DEV",
         "dp.inntekt.api.url" to "http://dp-inntekt-api//",
-        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443"
+        "kafka.bootstrap.servers" to "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443",
+        "unleash.url" to "https://unleash.nais.preprod.local/api/"
 
     )
 )
@@ -31,7 +33,8 @@ private val prodProperties = ConfigurationMap(
     mapOf(
         "application.profile" to "PROD",
         "dp.inntekt.api.url" to "http://dp-inntekt-api/",
-        "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443"
+        "kafka.bootstrap.servers" to "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
+        "unleash.url" to "https://unleash.nais.adeo.no/api/"
     )
 )
 
@@ -47,8 +50,8 @@ data class Configuration(
         val bootstrapServersUrl: String = config()[Key("kafka.bootstrap.servers", stringType)],
         val inntektApiKey: String = config()[Key("dp.inntekt.api.key", stringType)],
         val inntektApiSecret: String = config()[Key("dp.inntekt.api.secret", stringType)],
+        val unleashUrl: String = config()[Key("unleash.url", stringType)],
         val httpPort: Int? = 8094
-
     )
 }
 
