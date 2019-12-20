@@ -1,0 +1,8 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dp-datalaster-inntekt
+spec:
+  env:
+    - name: BEHOV_TOPIC
+      value: "privat-dagpenger-behov-v1-q2"

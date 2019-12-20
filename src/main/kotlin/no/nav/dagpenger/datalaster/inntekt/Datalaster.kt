@@ -7,7 +7,6 @@ import no.nav.dagpenger.events.Problem
 import no.nav.dagpenger.ktor.auth.ApiKeyVerifier
 import no.nav.dagpenger.streams.KafkaCredential
 import no.nav.dagpenger.streams.River
-import no.nav.dagpenger.streams.Topics
 import no.nav.dagpenger.streams.streamConfig
 import org.apache.kafka.streams.kstream.Predicate
 import java.net.URI
@@ -20,7 +19,7 @@ class Datalaster(
     private val inntektApiHttpClient: InntektApiClient,
     private val spesifisertInntektHttpClient: SpesifisertInntektHttpClient,
     private val unleash: Unleash
-) : River(Topics.DAGPENGER_BEHOV_PACKET_EVENT) {
+) : River(config.application.behovTopic) {
 
     override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
     override val HTTP_PORT: Int = config.application.httpPort ?: super.HTTP_PORT
