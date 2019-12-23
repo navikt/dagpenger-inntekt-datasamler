@@ -21,7 +21,8 @@ class Datalaster(
     private val unleash: Unleash
 ) : River(config.application.behovTopic) {
 
-    override val SERVICE_APP_ID: String = "dagpenger-inntekt-datasamler"
+    override val SERVICE_APP_ID: String = config.application.id
+
     override val HTTP_PORT: Int = config.application.httpPort ?: super.HTTP_PORT
 
     companion object {

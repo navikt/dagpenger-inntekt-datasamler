@@ -48,6 +48,7 @@ data class Configuration(
 ) {
 
     data class Application(
+        val id: String = config().getOrElse(Key("application.id", stringType), "dagpenger-inntekt-datasamler"),
         val profile: Profile = config()[Key("application.profile", stringType)].let { Profile.valueOf(it) },
         val username: String = config()[Key("srvdp.datalaster.inntekt.username", stringType)],
         val password: String = config()[Key("srvdp.datalaster.inntekt.password", stringType)],
