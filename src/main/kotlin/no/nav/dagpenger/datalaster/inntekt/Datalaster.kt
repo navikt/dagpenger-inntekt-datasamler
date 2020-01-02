@@ -49,14 +49,6 @@ class Datalaster(
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
         val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
 
-        try {
-            val spesifisertInntekt =
-                spesifisertInntektHttpClient.getSpesifisertInntekt(aktørId, vedtakId, beregningsDato)
-            packet.putValue(SPESIFISERT_INNTEKT, spesifisertInntektJsonAdapter.toJsonValue(spesifisertInntekt)!!)
-        } catch (e: Exception) {
-            LOGGER.warn("Could not add spesifisert inntekt", e)
-        }
-
         if (!unleash.isEnabled("dp.ny-klassifisering")) {
             val inntekt = when (inntektsId) {
                 is String -> inntektApiHttpClient.getInntektById(
