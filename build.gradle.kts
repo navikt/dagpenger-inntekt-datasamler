@@ -42,7 +42,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(Kotlin.Logging.kotlinLogging)
 
-    implementation(Dagpenger.Streams)
+    implementation("com.github.navikt:dagpenger-streams:2020.01.07-11.25.73b9ee7f90ec")
     implementation(Dagpenger.Events)
     implementation(Dagpenger.Biblioteker.ktorUtils)
 
