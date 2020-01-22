@@ -39,7 +39,8 @@ class Datalaster(
         return listOf(
             Predicate { _, packet -> !packet.hasField(INNTEKT) },
             Predicate { _, packet -> !packet.hasField(SPESIFISERT_INNTEKT) },
-            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) }
+            Predicate { _, packet -> !packet.hasField(MANUELT_GRUNNLAG) },
+            Predicate { _, _ -> !unleash.isEnabled("dp.ny-klassifisering") }
         )
     }
 
@@ -49,18 +50,16 @@ class Datalaster(
         val beregningsDato = packet.getLocalDate(BEREGNINGSDATO)
         val inntektsId = packet.getNullableStringValue(INNTEKTS_ID)
 
-        if (!unleash.isEnabled("dp.ny-klassifisering")) {
-            val inntekt = when (inntektsId) {
-                is String -> inntektApiHttpClient.getInntektById(
-                    inntektsId = inntektsId,
-                    aktørId = aktørId,
-                    beregningsDato = beregningsDato
-                )
-                else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
-            }
-
-            packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
+        val inntekt = when (inntektsId) {
+            is String -> inntektApiHttpClient.getInntektById(
+                inntektsId = inntektsId,
+                aktørId = aktørId,
+                beregningsDato = beregningsDato
+            )
+            else -> inntektApiHttpClient.getInntekt(aktørId, vedtakId, beregningsDato)
         }
+
+        packet.putValue(INNTEKT, inntektJsonAdapter.toJsonValue(inntekt)!!)
 
         return packet
     }
