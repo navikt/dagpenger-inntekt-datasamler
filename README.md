@@ -1,3 +1,5 @@
+# ARKIVERT
+bruker [dp-inntekt-klassifiserer](https://github.com/navikt/dp-inntekt-klassifiserer) til å legge ut inntekter
 # dagpenger-inntekt-datasamler
 Samler inntektsgrunnlag for kjøring av regler knyttet til Dagpenger vilkår
 
